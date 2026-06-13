@@ -405,6 +405,58 @@
   }
   .input-field:focus { border-color: var(--primary); }
   select.input-field option { background: var(--surface2); }
+
+  /* ── AI FEATURES ── */
+  .ai-chat-box {
+    height: 260px; overflow-y: auto; padding: 12px;
+    background: var(--bg); border-radius: 12px;
+    border: 1px solid var(--border); margin-bottom: 10px;
+    display: flex; flex-direction: column;
+  }
+  .ai-bubble {
+    max-width: 86%; padding: 10px 14px; border-radius: 14px;
+    margin-bottom: 8px; font-size: 13px; line-height: 1.6; word-break: break-word;
+  }
+  .ai-bubble.user {
+    background: var(--primary); color: #fff; margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
+  .ai-bubble.assistant {
+    background: var(--surface2); border: 1px solid var(--border);
+    margin-right: auto; border-bottom-left-radius: 4px; color: var(--text);
+  }
+  .ai-bubble.typing { opacity: 0.6; font-style: italic; }
+  .ai-feedback-box {
+    background: var(--surface2); border-radius: 12px; padding: 14px;
+    border: 1px solid rgba(10,191,188,0.3); font-size: 13px;
+    line-height: 1.75; margin-top: 10px; white-space: pre-wrap; color: var(--text);
+  }
+  .ai-status {
+    font-size: 12px; color: var(--primary); text-align: center;
+    padding: 6px 0; display: none;
+  }
+  .speaking-wave {
+    display: inline-flex; gap: 3px; align-items: flex-end;
+    height: 16px; vertical-align: middle; margin-left: 6px;
+  }
+  .speaking-wave span {
+    width: 3px; background: var(--primary); border-radius: 2px;
+    animation: wave 1s infinite ease-in-out;
+  }
+  .speaking-wave span:nth-child(1) { height: 6px; animation-delay: 0s; }
+  .speaking-wave span:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+  .speaking-wave span:nth-child(3) { height: 8px; animation-delay: 0.3s; }
+  .speaking-wave span:nth-child(4) { height: 14px; animation-delay: 0.45s; }
+  .speaking-wave span:nth-child(5) { height: 6px; animation-delay: 0.6s; }
+  @keyframes wave {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1.4); }
+  }
+  .api-key-notice {
+    background: rgba(255,112,67,0.1); border: 1px solid rgba(255,112,67,0.3);
+    border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.5;
+    margin-bottom: 12px;
+  }
 </style>
 </head>
 <body>
@@ -449,6 +501,7 @@
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="streak" id="streak-display">🔥 0 days</div>
       <button onclick="toggleTheme()" id="theme-btn" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px;" title="Toggle light/dark mode">🌙</button>
+      <button onclick="openSettings()" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px;" title="Settings">⚙️</button>
     </div>
   </div>
 
@@ -522,6 +575,7 @@
       <div class="mode-chip active" data-mode="free" onclick="switchMode('free')">Free Speaking</div>
       <div class="mode-chip" data-mode="topic" onclick="switchMode('topic')">Topic</div>
       <div class="mode-chip" data-mode="roleplay" onclick="switchMode('roleplay')">Roleplay</div>
+      <div class="mode-chip" data-mode="ai" onclick="switchMode('ai')">🤖 AI Chat</div>
     </div>
 
     <div id="topic-area" class="card" style="display:none; padding:14px;">
@@ -553,13 +607,43 @@
       </div>
     </div>
 
+    <div id="transcript-section">
     <div class="card-title" style="margin-bottom:6px;">Live Transcript</div>
     <div class="transcript-box" id="transcript-box">
       <span class="transcript-placeholder">Your speech will appear here as you talk...</span>
     </div>
+    </div><!-- end transcript-section -->
 
     <div style="margin-top:12px; display:none;" id="stop-area">
       <button class="btn btn-danger" onclick="stopAndAnalyze()">⏹ Stop & Get Feedback</button>
+    </div>
+
+    <!-- AI CONVERSATION UI -->
+    <div id="ai-chat-panel" style="display:none;">
+      <div class="api-key-notice" id="ai-no-key" style="display:none;">
+        ⚠️ No Groq API key set. Tap ⚙️ in the top-right to add your key. Get one free at <strong>console.groq.com</strong>.
+      </div>
+      <div class="card" style="padding:12px; margin-bottom:10px;" id="ai-scenario-card">
+        <div class="topic-label">🎭 Scenario</div>
+        <div id="ai-scenario-text" style="font-size:14px; margin-top:6px; font-weight:500;">Choose a scenario to begin</div>
+        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="startAIChat('job_interview')">Job Interview</button>
+          <button class="btn btn-outline btn-sm" onclick="startAIChat('casual')">Casual Chat</button>
+          <button class="btn btn-outline btn-sm" onclick="startAIChat('meeting')">Work Meeting</button>
+          <button class="btn btn-outline btn-sm" onclick="startAIChat('networking')">Networking</button>
+        </div>
+      </div>
+      <div class="ai-chat-box" id="ai-chat-box">
+        <div class="ai-bubble assistant">👋 Select a scenario above and I'll start the conversation!</div>
+      </div>
+      <div class="ai-status" id="ai-status">AI is thinking...</div>
+      <div style="display:flex; gap:8px; align-items:center;" id="ai-input-row">
+        <button class="record-btn" id="ai-record-btn" onclick="toggleAIRecording()" style="width:52px; height:52px; flex-shrink:0;">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;"><circle cx="12" cy="11" r="4"/><path d="M4 11a8 8 0 0 0 16 0M12 19v3"/></svg>
+        </button>
+        <div style="flex:1; font-size:12px; color:var(--text-muted); line-height:1.4;" id="ai-interim">Tap mic to speak your response...</div>
+        <button class="btn btn-primary btn-sm" onclick="sendAIMessage()" id="ai-send-btn" style="flex-shrink:0;">Send</button>
+      </div>
     </div>
   </div>
 
@@ -596,6 +680,13 @@
     <div class="card" id="transcript-annotated-card" style="display:none;">
       <div class="card-title">Your Transcript</div>
       <div class="annotated-transcript" id="annotated-transcript"></div>
+    </div>
+
+    <div class="card" id="ai-feedback-card">
+      <div class="card-title">🤖 AI Deep Analysis</div>
+      <div id="ai-feedback-content" style="font-size:13px; color:var(--text-muted);">Get personalized AI coaching on your session.</div>
+      <button class="btn btn-outline" onclick="getAIFeedback()" id="ai-feedback-btn" style="margin-top:10px;">✨ Analyze with AI</button>
+      <div class="ai-feedback-box" id="ai-feedback-result" style="display:none;"></div>
     </div>
 
     <button class="btn btn-primary" onclick="saveSession()" id="save-btn" style="margin-top:4px; margin-bottom:12px;">💾 Save to Progress</button>
@@ -645,6 +736,26 @@
       <div id="session-history">
         <div style="color:var(--text-muted); font-size:13px;">No sessions yet. Start practicing!</div>
       </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal">
+      <h2>⚙️ Settings</h2>
+      <p>Add your free Groq API key to unlock AI feedback and the AI conversation partner. Get one at <strong>console.groq.com</strong> → sign up → API Keys → Create.</p>
+      <div class="input-group">
+        <label class="input-label">Groq API Key</label>
+        <input type="password" id="groq-key-input" class="input-field" placeholder="gsk_..." />
+      </div>
+      <div style="display:flex; gap:8px; margin-top:4px;">
+        <button class="btn btn-primary" onclick="saveAPIKey()">Save Key</button>
+        <button class="btn btn-outline" onclick="closeSettings()">Cancel</button>
+      </div>
+      <div id="key-status" style="font-size:13px; margin-top:10px; color:var(--success); display:none;">✅ Key saved!</div>
+      <hr style="border-color:var(--border); margin:16px 0;">
+      <p style="margin-bottom:8px;">Account</p>
+      <button class="btn btn-outline" onclick="resetApp()" style="color:var(--danger); border-color:var(--danger);">🗑️ Reset all data</button>
     </div>
   </div>
 
@@ -1326,6 +1437,7 @@ function saveSession() {
 
   document.getElementById('save-btn').textContent = '✅ Saved!';
   document.getElementById('save-btn').disabled = true;
+  lastSavedSession = { ...currentSession };
   currentSession = null;
 }
 
@@ -1519,6 +1631,326 @@ function formatDate(ts) {
   if (diff === 0) return 'Today';
   if (diff === 86400000) return 'Yesterday';
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+// ─── SETTINGS ──────────────────────────────────────────────────────────────────
+
+function openSettings() {
+  const existing = localStorage.getItem('groq_key') || '';
+  document.getElementById('groq-key-input').value = existing ? '••••••••' + existing.slice(-4) : '';
+  document.getElementById('key-status').style.display = 'none';
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+function saveAPIKey() {
+  const val = document.getElementById('groq-key-input').value.trim();
+  if (val && !val.startsWith('••')) {
+    localStorage.setItem('groq_key', val);
+  }
+  document.getElementById('key-status').style.display = 'block';
+  setTimeout(closeSettings, 1200);
+}
+function resetApp() {
+  if (confirm('This will delete all your progress and settings. Are you sure?')) {
+    localStorage.clear();
+    location.reload();
+  }
+}
+
+// ─── GROQ AI ──────────────────────────────────────────────────────────────────
+
+async function callGroq(messages) {
+  const key = localStorage.getItem('groq_key');
+  if (!key) { alert('Please add your Groq API key in ⚙️ Settings first.'); return null; }
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages,
+        max_tokens: 1024,
+        temperature: 0.7
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      alert('Groq error: ' + (err.error?.message || res.status));
+      return null;
+    }
+    const data = await res.json();
+    return data.choices[0].message.content;
+  } catch (e) {
+    alert('Network error calling Groq. Check your connection.');
+    return null;
+  }
+}
+
+// ─── AI FEEDBACK ──────────────────────────────────────────────────────────────
+
+async function getAIFeedback() {
+  if (!currentSession && !lastSavedSession) {
+    alert('No session to analyze yet.');
+    return;
+  }
+  const s = currentSession || lastSavedSession;
+  const btn = document.getElementById('ai-feedback-btn');
+  const resultBox = document.getElementById('ai-feedback-result');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Analyzing...';
+  resultBox.style.display = 'none';
+
+  const fillerList = Object.entries(s.fillerCount || {})
+    .map(([w, c]) => `"${w}" (${c}x)`).join(', ') || 'none detected';
+
+  const messages = [
+    {
+      role: 'system',
+      content: `You are an expert English speaking coach helping a non-native speaker improve.
+Be specific, encouraging, and practical. Use clear formatting with short sections.
+Focus on the most impactful improvements. Keep total response under 350 words.`
+    },
+    {
+      role: 'user',
+      content: `Please coach me on my English speaking session:
+
+Mode: ${s.mode}
+Duration: ~${Math.round((s.wordCount / Math.max(s.wpm, 1)) * 60)} seconds
+Words spoken: ${s.wordCount}
+Speaking pace: ${s.wpm} WPM (ideal is 120–150)
+Filler words detected: ${fillerList}
+Long pauses: ${s.pauseCount}
+Fluency score: ${s.fluencyScore}/100
+Vocabulary score: ${s.vocabScore}/100
+
+Transcript:
+"${(s.transcript || '').replace(/\[pause\]/g, '[pause]').slice(0, 1200)}"
+
+Give me:
+1. ✅ What I did well
+2. ⚠️ Top 2–3 specific issues with examples from my transcript
+3. 💡 One rewritten sentence showing how I could have said it better
+4. 🎯 My single most important focus for next session`
+    }
+  ];
+
+  const result = await callGroq(messages);
+  btn.disabled = false;
+  btn.textContent = '✨ Analyze with AI';
+
+  if (result) {
+    resultBox.style.display = 'block';
+    resultBox.textContent = result;
+  }
+}
+
+let lastSavedSession = null;
+
+// ─── AI CONVERSATION ──────────────────────────────────────────────────────────
+
+let aiChatHistory = [];
+let aiScenario = null;
+let aiRecognition = null;
+let aiIsRecording = false;
+let isSpeaking = false;
+let pendingAIText = '';
+
+const AI_SCENARIOS = {
+  job_interview: {
+    label: '💼 Job Interview',
+    system: `You are a professional interviewer at a tech company interviewing a candidate.
+Ask realistic interview questions one at a time. After each answer, give a very brief coaching tip
+in [brackets] if you notice an English language issue (grammar, word choice, filler words).
+Keep your responses concise (2–3 sentences max). Be encouraging but professional.`,
+    opener: "Welcome! Thanks for coming in today. To start, could you tell me a little about yourself and why you're interested in this role?"
+  },
+  casual: {
+    label: '☕ Casual Chat',
+    system: `You are a friendly English-speaking colleague having a casual conversation.
+Keep the conversation natural and interesting. If the user makes an English mistake,
+subtly add a correction in [brackets] at the end of your reply.
+Ask follow-up questions to keep the conversation going. Keep replies short (2–3 sentences).`,
+    opener: "Hey! How's your day going? Done anything interesting lately?"
+  },
+  meeting: {
+    label: '📊 Work Meeting',
+    system: `You are a team lead running a work meeting. Discuss project updates, ask for status reports,
+and navigate typical work scenarios. If the user makes English errors, note them in [brackets].
+Keep responses professional and concise (2–3 sentences). Simulate realistic work conversations.`,
+    opener: "Thanks everyone for joining. Let's get started — can you give me a quick update on where things stand with your current project?"
+  },
+  networking: {
+    label: '🤝 Networking Event',
+    system: `You are a professional at a networking event meeting someone new.
+Have a natural professional conversation — share your background, ask questions, discuss industry topics.
+If the user makes English mistakes, note corrections in [brackets]. Keep it friendly and engaging (2–3 sentences).`,
+    opener: "Hi there! I don't think we've met — I'm Alex. What brings you to this event today?"
+  }
+};
+
+function startAIChat(scenarioKey) {
+  const key = localStorage.getItem('groq_key');
+  if (!key) {
+    document.getElementById('ai-no-key').style.display = 'block';
+    return;
+  }
+  document.getElementById('ai-no-key').style.display = 'none';
+  aiScenario = AI_SCENARIOS[scenarioKey];
+  aiChatHistory = [];
+  document.getElementById('ai-scenario-text').textContent = aiScenario.label;
+
+  const chatBox = document.getElementById('ai-chat-box');
+  chatBox.innerHTML = '';
+
+  // Prime with system message
+  aiChatHistory.push({ role: 'system', content: aiScenario.system });
+
+  // Show opener
+  addAIBubble('assistant', aiScenario.opener);
+  aiChatHistory.push({ role: 'assistant', content: aiScenario.opener });
+  speakText(aiScenario.opener);
+}
+
+function addAIBubble(role, text) {
+  const chatBox = document.getElementById('ai-chat-box');
+  const bubble = document.createElement('div');
+  bubble.className = `ai-bubble ${role}`;
+  bubble.textContent = text;
+  chatBox.appendChild(bubble);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  return bubble;
+}
+
+function toggleAIRecording() {
+  if (aiIsRecording) {
+    stopAIRecording();
+  } else {
+    startAIRecording();
+  }
+}
+
+function startAIRecording() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Speech recognition requires Chrome or Edge.'); return; }
+  pendingAIText = '';
+
+  aiRecognition = new SR();
+  aiRecognition.lang = 'en-US';
+  aiRecognition.interimResults = true;
+  aiRecognition.continuous = false;
+
+  aiRecognition.onstart = () => {
+    aiIsRecording = true;
+    document.getElementById('ai-record-btn').style.background = 'var(--danger)';
+    document.getElementById('ai-interim').textContent = 'Listening...';
+  };
+
+  aiRecognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) pendingAIText += e.results[i][0].transcript;
+      else interim = e.results[i][0].transcript;
+    }
+    document.getElementById('ai-interim').textContent = pendingAIText + interim || 'Listening...';
+  };
+
+  aiRecognition.onend = () => {
+    aiIsRecording = false;
+    document.getElementById('ai-record-btn').style.background = 'var(--primary)';
+    if (pendingAIText.trim()) {
+      document.getElementById('ai-interim').textContent = pendingAIText;
+    }
+  };
+
+  aiRecognition.start();
+}
+
+function stopAIRecording() {
+  if (aiRecognition) { aiRecognition.stop(); aiRecognition = null; }
+}
+
+async function sendAIMessage() {
+  const text = pendingAIText.trim() || document.getElementById('ai-interim').textContent.trim();
+  if (!text || text === 'Tap mic to speak your response...' || text === 'Listening...') {
+    alert('Please record your response first.');
+    return;
+  }
+  if (!aiScenario) { alert('Please select a scenario first.'); return; }
+
+  addAIBubble('user', text);
+  aiChatHistory.push({ role: 'user', content: text });
+  pendingAIText = '';
+  document.getElementById('ai-interim').textContent = 'Tap mic to speak your response...';
+
+  const statusEl = document.getElementById('ai-status');
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'AI is thinking...';
+  document.getElementById('ai-send-btn').disabled = true;
+
+  const reply = await callGroq(aiChatHistory);
+
+  statusEl.style.display = 'none';
+  document.getElementById('ai-send-btn').disabled = false;
+
+  if (reply) {
+    addAIBubble('assistant', reply);
+    aiChatHistory.push({ role: 'assistant', content: reply });
+    speakText(reply);
+  }
+}
+
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  // Strip text in brackets (coaching tips) from speech
+  const cleanText = text.replace(/\[.*?\]/g, '').trim();
+  const utter = new SpeechSynthesisUtterance(cleanText);
+  utter.lang = 'en-US';
+  utter.rate = 0.95;
+  utter.pitch = 1;
+
+  // Prefer a natural English voice
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.lang === 'en-US' && v.name.includes('Google'))
+    || voices.find(v => v.lang === 'en-US')
+    || voices[0];
+  if (preferred) utter.voice = preferred;
+
+  window.speechSynthesis.speak(utter);
+}
+
+// Patch switchMode to handle AI mode
+const _origSwitchMode = switchMode;
+function switchMode(mode) {
+  const aiPanel = document.getElementById('ai-chat-panel');
+  const stopArea = document.getElementById('stop-area');
+  const liveStats = document.querySelector('.live-stats');
+
+  if (mode === 'ai') {
+    aiPanel.style.display = 'block';
+    document.getElementById('record-area').style.display = 'none';
+    if (liveStats) liveStats.style.display = 'none';
+    document.getElementById('transcript-section').style.display = 'none';
+    stopArea.style.display = 'none';
+    if (isRecording) stopRecording();
+  } else {
+    aiPanel.style.display = 'none';
+    document.getElementById('record-area').style.display = '';
+    if (liveStats) liveStats.style.display = '';
+    document.getElementById('transcript-section').style.display = '';
+    window.speechSynthesis && window.speechSynthesis.cancel();
+  }
+
+  currentMode = mode;
+  document.querySelectorAll('.mode-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === mode));
+  document.getElementById('topic-area').style.display = (mode === 'topic' || mode === 'roleplay') ? 'block' : 'none';
+  if (mode === 'topic' || mode === 'roleplay') {
+    document.getElementById('topic-type-label').textContent = mode === 'roleplay' ? '🎭 Roleplay Scenario' : '💬 Speaking Topic';
+    newPrompt();
+  }
 }
 
 // ─── THEME ─────────────────────────────────────────────────────────────────────
