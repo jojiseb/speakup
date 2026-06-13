@@ -7,20 +7,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
-    --primary: #6C63FF;
-    --primary-dark: #5A52D5;
-    --accent: #FF6584;
-    --success: #43D9A2;
+    --primary: #0ABFBC;
+    --primary-dark: #089E9B;
+    --accent: #FF7043;
+    --success: #26D07C;
     --warning: #FFB347;
-    --danger: #FF6B6B;
-    --bg: #0F0F1A;
-    --surface: #1A1A2E;
-    --surface2: #22223B;
+    --danger: #FF5252;
+    --bg: #0A0F1E;
+    --surface: #111827;
+    --surface2: #1F2937;
     --border: rgba(255,255,255,0.08);
-    --text: #F0F0FF;
-    --text-muted: #8888AA;
+    --text: #F9FAFB;
+    --text-muted: #9CA3AF;
     --radius: 16px;
     --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  body.light {
+    --bg: #F0F4F8;
+    --surface: #FFFFFF;
+    --surface2: #F3F4F6;
+    --border: rgba(0,0,0,0.1);
+    --text: #111827;
+    --text-muted: #6B7280;
+    --shadow: 0 4px 24px rgba(0,0,0,0.1);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -137,8 +147,8 @@
   .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
   .tip-card {
-    background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(255,101,132,0.15));
-    border: 1px solid rgba(108,99,255,0.3);
+    background: linear-gradient(135deg, rgba(10,191,188,0.15), rgba(255,112,67,0.1));
+    border: 1px solid rgba(10,191,188,0.3);
     border-radius: var(--radius);
     padding: 16px;
     margin-bottom: 14px;
@@ -317,7 +327,7 @@
 
   /* PROGRESS VIEW */
   .level-card {
-    background: linear-gradient(135deg, var(--primary), #9C88FF);
+    background: linear-gradient(135deg, var(--primary), #0891B2);
     border-radius: var(--radius);
     padding: 20px;
     margin-bottom: 14px;
@@ -401,7 +411,7 @@
 
 <!-- SETUP SCREEN -->
 <div id="setup-screen" class="setup-screen" style="display:none;">
-  <div style="font-size:56px; margin-bottom:16px;">🎙️</div>
+  <div style="font-size:56px; margin-bottom:16px;">💬</div>
   <h1>Welcome to <span style="color:var(--primary)">SpeakUp</span></h1>
   <p>Your personal English speaking coach. Let's personalize your experience in 30 seconds.</p>
   <div class="input-group">
@@ -435,8 +445,11 @@
 <div id="app" style="display:none; flex-direction:column; min-height:100vh; display:none;">
 
   <div class="nav-top">
-    <div class="logo">Speak<span>Up</span></div>
-    <div class="streak" id="streak-display">🔥 0 days</div>
+    <div class="logo">💬 Speak<span>Up</span></div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="streak" id="streak-display">🔥 0 days</div>
+      <button onclick="toggleTheme()" id="theme-btn" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px;" title="Toggle light/dark mode">🌙</button>
+    </div>
   </div>
 
   <!-- HOME VIEW -->
@@ -1508,8 +1521,26 @@ function formatDate(ts) {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
+// ─── THEME ─────────────────────────────────────────────────────────────────────
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('speakup_theme', isLight ? 'light' : 'dark');
+}
+
+function applyTheme() {
+  const saved = localStorage.getItem('speakup_theme');
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = '☀️';
+  }
+}
+
 // ─── START ─────────────────────────────────────────────────────────────────────
 
+applyTheme();
 init();
 </script>
 </body>
