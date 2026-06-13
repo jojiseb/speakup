@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SpeakUp – English Speaking Coach</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #6C63FF;
+    --primary-dark: #5A52D5;
+    --accent: #FF6584;
+    --success: #43D9A2;
+    --warning: #FFB347;
+    --danger: #FF6B6B;
+    --bg: #0F0F1A;
+    --surface: #1A1A2E;
+    --surface2: #22223B;
+    --border: rgba(255,255,255,0.08);
+    --text: #F0F0FF;
+    --text-muted: #8888AA;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* NAV */
+  .nav-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-top .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+  .nav-top .logo span { color: var(--primary); }
+  .nav-top .streak { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--warning); font-weight: 600; }
+
+  .nav-bottom {
+    display: flex;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 8px;
+    cursor: pointer;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    border: none;
+    background: none;
+  }
+  .nav-item.active { color: var(--primary); }
+  .nav-item svg { width: 22px; height: 22px; }
+
+  /* VIEWS */
+  .view { display: none; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; }
+  .view.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .badge-primary { background: rgba(108,99,255,0.2); color: var(--primary); }
+  .badge-success { background: rgba(67,217,162,0.2); color: var(--success); }
+  .badge-warning { background: rgba(255,179,71,0.2); color: var(--warning); }
+  .badge-danger { background: rgba(255,107,107,0.2); color: var(--danger); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 600;
+    border: none; cursor: pointer; transition: all 0.2s;
+    width: 100%;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 8px; width: auto; }
+
+  /* HOME VIEW */
+  .greeting { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .greeting-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-value { font-size: 22px; font-weight: 700; color: var(--primary); }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .tip-card {
+    background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(255,101,132,0.15));
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .tip-label { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .tip-text { font-size: 14px; line-height: 1.5; }
+
+  .quick-start { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .mode-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .mode-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .mode-btn .mode-icon { font-size: 28px; margin-bottom: 6px; }
+  .mode-btn .mode-name { font-size: 13px; font-weight: 600; }
+  .mode-btn .mode-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* PRACTICE VIEW */
+  .mode-selector { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .mode-chip {
+    padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.2s;
+  }
+  .mode-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+  .topic-display {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    min-height: 60px;
+    border: 1px solid var(--border);
+  }
+  .topic-label { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+
+  .record-area { text-align: center; margin: 24px 0 20px; }
+  .record-btn {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--primary);
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+    box-shadow: 0 0 0 0 rgba(108,99,255,0.5);
+    position: relative;
+  }
+  .record-btn.recording {
+    background: var(--danger);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,107,107,0.5); }
+    70% { box-shadow: 0 0 0 20px rgba(255,107,107,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,107,107,0); }
+  }
+  .record-btn svg { width: 32px; height: 32px; color: white; }
+  .record-status { font-size: 13px; color: var(--text-muted); margin-top: 12px; }
+  .record-time { font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 4px; }
+
+  .live-stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px; margin-bottom: 14px;
+  }
+  .live-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .live-stat-val { font-size: 18px; font-weight: 700; }
+  .live-stat-val.bad { color: var(--danger); }
+  .live-stat-val.ok { color: var(--warning); }
+  .live-stat-val.good { color: var(--success); }
+  .live-stat-lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+  .transcript-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .transcript-box .filler { background: rgba(255,107,107,0.25); color: var(--danger); border-radius: 4px; padding: 1px 3px; font-weight: 600; }
+  .transcript-box .pause-mark { color: var(--warning); font-weight: 700; font-size: 12px; }
+  .transcript-placeholder { color: var(--text-muted); font-style: italic; font-size: 13px; }
+
+  /* FEEDBACK VIEW */
+  .score-circle-wrap { text-align: center; margin: 10px 0 20px; }
+  .score-circle {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    border: 8px solid var(--surface2);
+    display: inline-flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative;
+    background: var(--surface);
+  }
+  .score-num { font-size: 36px; font-weight: 800; }
+  .score-label { font-size: 12px; color: var(--text-muted); }
+
+  .score-bars { margin-bottom: 14px; }
+  .score-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .score-bar-label { font-size: 13px; font-weight: 600; width: 90px; flex-shrink: 0; }
+  .score-bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+  .score-bar-val { font-size: 13px; font-weight: 700; width: 35px; text-align: right; flex-shrink: 0; }
+
+  .feedback-section { margin-bottom: 14px; }
+  .feedback-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: var(--surface2);
+    font-size: 13px; line-height: 1.5;
+  }
+  .feedback-item .fi-icon { font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+
+  .annotated-transcript { font-size: 13px; line-height: 1.9; color: var(--text-muted); }
+  .annotated-transcript .filler { background: rgba(255,107,107,0.2); color: var(--danger); border-radius: 3px; padding: 1px 4px; font-weight: 600; }
+  .annotated-transcript .pause { color: var(--warning); font-weight: 600; font-size: 11px; vertical-align: middle; }
+
+  /* LESSONS VIEW */
+  .lesson-filter { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+  .filter-chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface); cursor: pointer;
+    white-space: nowrap; transition: all 0.2s; flex-shrink: 0;
+  }
+  .filter-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+  .lesson-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .lesson-card.completed { border-color: rgba(67,217,162,0.3); }
+  .lesson-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; cursor: pointer;
+  }
+  .lesson-icon { font-size: 24px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--surface2); border-radius: 10px; flex-shrink: 0; }
+  .lesson-meta { flex: 1; }
+  .lesson-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .lesson-sub { font-size: 12px; color: var(--text-muted); }
+  .lesson-chevron { color: var(--text-muted); font-size: 18px; transition: transform 0.3s; }
+  .lesson-card.open .lesson-chevron { transform: rotate(180deg); }
+  .lesson-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+  .lesson-card.open .lesson-body { display: block; }
+  .lesson-body p { font-size: 13px; line-height: 1.7; color: var(--text-muted); margin-top: 12px; }
+  .lesson-body p strong { color: var(--text); }
+  .lesson-example {
+    background: var(--surface2); border-radius: 8px;
+    padding: 10px 12px; margin: 10px 0;
+    font-size: 13px; line-height: 1.6;
+    border-left: 3px solid var(--primary);
+  }
+  .lesson-example .bad { color: var(--danger); text-decoration: line-through; }
+  .lesson-example .good { color: var(--success); }
+  .lesson-complete-btn { margin-top: 12px; }
+
+  /* PROGRESS VIEW */
+  .level-card {
+    background: linear-gradient(135deg, var(--primary), #9C88FF);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card::after { content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+  .level-name { font-size: 24px; font-weight: 800; margin-bottom: 2px; }
+  .level-sub { font-size: 13px; opacity: 0.8; margin-bottom: 14px; }
+  .xp-bar-wrap { background: rgba(0,0,0,0.2); border-radius: 6px; height: 8px; }
+  .xp-bar { height: 100%; border-radius: 6px; background: white; transition: width 1s; }
+  .xp-label { font-size: 11px; opacity: 0.7; margin-top: 6px; }
+
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+  .chart-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+  .weak-area-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .weak-area-label { font-size: 13px; width: 120px; flex-shrink: 0; }
+  .weak-area-bar { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .weak-area-fill { height: 100%; border-radius: 3px; }
+  .weak-area-pct { font-size: 12px; font-weight: 600; width: 35px; text-align: right; flex-shrink: 0; }
+
+  .session-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .session-item:last-child { border-bottom: none; }
+  .session-score { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+  .session-info { flex: 1; }
+  .session-title { font-size: 13px; font-weight: 600; }
+  .session-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .session-date { font-size: 11px; color: var(--text-muted); text-align: right; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7); align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; max-width: 420px; width: 100%;
+    max-height: 80vh; overflow-y: auto;
+  }
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .modal p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+
+  /* NO SUPPORT BANNER */
+  .no-support {
+    background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 10px; padding: 12px 14px; font-size: 13px; margin-bottom: 14px;
+    line-height: 1.5; display: none;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 2px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.3s ease; }
+
+  /* Profile setup */
+  .setup-screen { padding: 40px 20px; text-align: center; }
+  .setup-screen h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .setup-screen p { color: var(--text-muted); margin-bottom: 32px; line-height: 1.6; }
+  .input-group { margin-bottom: 14px; text-align: left; }
+  .input-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; }
+  .input-field {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--primary); }
+  select.input-field option { background: var(--surface2); }
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="setup-screen" style="display:none;">
+  <div style="font-size:56px; margin-bottom:16px;">🎙️</div>
+  <h1>Welcome to <span style="color:var(--primary)">SpeakUp</span></h1>
+  <p>Your personal English speaking coach. Let's personalize your experience in 30 seconds.</p>
+  <div class="input-group">
+    <label class="input-label">Your name</label>
+    <input type="text" id="setup-name" class="input-field" placeholder="e.g. JI" />
+  </div>
+  <div class="input-group">
+    <label class="input-label">Current English level</label>
+    <select id="setup-level" class="input-field">
+      <option value="beginner">Beginner – I'm just getting started</option>
+      <option value="intermediate" selected>Intermediate – I can hold basic conversations</option>
+      <option value="upper">Upper-Intermediate – Fairly fluent, want to polish</option>
+      <option value="advanced">Advanced – Professional-level fluency</option>
+    </select>
+  </div>
+  <div class="input-group">
+    <label class="input-label">Main goal</label>
+    <select id="setup-goal" class="input-field">
+      <option value="fluency">Sound more fluent & natural</option>
+      <option value="professional">Professional / business English</option>
+      <option value="confidence">Build confidence speaking</option>
+      <option value="all" selected>All of the above</option>
+    </select>
+  </div>
+  <br/>
+  <button class="btn btn-primary" onclick="finishSetup()">Let's go! 🚀</button>
+  <p style="margin-top:14px; font-size:12px; color:var(--text-muted)">Everything is saved locally on your device. No account needed.</p>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none; flex-direction:column; min-height:100vh; display:none;">
+
+  <div class="nav-top">
+    <div class="logo">Speak<span>Up</span></div>
+    <div class="streak" id="streak-display">🔥 0 days</div>
+  </div>
+
+  <!-- HOME VIEW -->
+  <div id="view-home" class="view active">
+    <div class="greeting" id="greeting-text">Good morning! 👋</div>
+    <div class="greeting-sub" id="greeting-sub">Ready to practice today?</div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-sessions">0</div>
+        <div class="stat-label">Sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-avg">–</div>
+        <div class="stat-label">Avg Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-words">0</div>
+        <div class="stat-label">Words Said</div>
+      </div>
+    </div>
+
+    <div class="tip-card" id="daily-tip">
+      <div class="tip-label">💡 Today's Tip</div>
+      <div class="tip-text" id="tip-text">Loading your tip...</div>
+    </div>
+
+    <div class="card-title" style="padding: 0 2px; margin-bottom:10px;">Quick Start</div>
+    <div class="quick-start">
+      <div class="mode-btn" onclick="startPractice('free')">
+        <div class="mode-icon">🎙️</div>
+        <div class="mode-name">Free Speaking</div>
+        <div class="mode-desc">Talk about anything</div>
+      </div>
+      <div class="mode-btn" onclick="startPractice('topic')">
+        <div class="mode-icon">💬</div>
+        <div class="mode-name">Topic Prompt</div>
+        <div class="mode-desc">Guided conversation</div>
+      </div>
+      <div class="mode-btn" onclick="startPractice('roleplay')">
+        <div class="mode-icon">🎭</div>
+        <div class="mode-name">Roleplay</div>
+        <div class="mode-desc">Real-life scenarios</div>
+      </div>
+      <div class="mode-btn" onclick="goToView('lessons')">
+        <div class="mode-icon">📚</div>
+        <div class="mode-name">Lessons</div>
+        <div class="mode-desc">Learn & improve</div>
+      </div>
+    </div>
+
+    <div class="card" id="weak-areas-home" style="display:none;">
+      <div class="card-title">⚠️ Focus On</div>
+      <div id="weak-areas-home-list"></div>
+    </div>
+
+    <div class="card" id="recent-home" style="display:none;">
+      <div class="card-title">Recent Session</div>
+      <div id="recent-home-content"></div>
+    </div>
+  </div>
+
+  <!-- PRACTICE VIEW -->
+  <div id="view-practice" class="view">
+    <div class="no-support" id="no-support-msg">
+      ⚠️ Speech recognition requires Chrome or Edge browser. Please open this app in Chrome for the best experience.
+    </div>
+
+    <div class="mode-selector">
+      <div class="mode-chip active" data-mode="free" onclick="switchMode('free')">Free Speaking</div>
+      <div class="mode-chip" data-mode="topic" onclick="switchMode('topic')">Topic</div>
+      <div class="mode-chip" data-mode="roleplay" onclick="switchMode('roleplay')">Roleplay</div>
+    </div>
+
+    <div id="topic-area" class="card" style="display:none; padding:14px;">
+      <div class="topic-label" id="topic-type-label">Topic</div>
+      <div class="topic-display" id="topic-display">Press 🎲 to get a prompt</div>
+      <button class="btn btn-outline btn-sm" onclick="newPrompt()" style="width:auto; margin-top:10px;">🎲 New prompt</button>
+    </div>
+
+    <div class="record-area">
+      <button class="record-btn" id="record-btn" onclick="toggleRecording()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="11" r="4"/><path d="M4 11a8 8 0 0 0 16 0M12 19v3M8 22h8"/></svg>
+      </button>
+      <div class="record-status" id="record-status">Tap to start recording</div>
+      <div class="record-time" id="record-time" style="display:none;">0:00</div>
+    </div>
+
+    <div class="live-stats">
+      <div class="live-stat">
+        <div class="live-stat-val good" id="ls-pace">–</div>
+        <div class="live-stat-lbl">WPM</div>
+      </div>
+      <div class="live-stat">
+        <div class="live-stat-val" id="ls-fillers">0</div>
+        <div class="live-stat-lbl">Fillers</div>
+      </div>
+      <div class="live-stat">
+        <div class="live-stat-val" id="ls-words">0</div>
+        <div class="live-stat-lbl">Words</div>
+      </div>
+    </div>
+
+    <div class="card-title" style="margin-bottom:6px;">Live Transcript</div>
+    <div class="transcript-box" id="transcript-box">
+      <span class="transcript-placeholder">Your speech will appear here as you talk...</span>
+    </div>
+
+    <div style="margin-top:12px; display:none;" id="stop-area">
+      <button class="btn btn-danger" onclick="stopAndAnalyze()">⏹ Stop & Get Feedback</button>
+    </div>
+  </div>
+
+  <!-- FEEDBACK VIEW -->
+  <div id="view-feedback" class="view">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+      <button class="btn btn-outline btn-sm" onclick="goToView('practice')" style="width:auto;">← New Session</button>
+      <div style="font-size:16px; font-weight:700;">Session Feedback</div>
+    </div>
+
+    <div class="score-circle-wrap">
+      <div class="score-circle" id="score-circle">
+        <div class="score-num" id="overall-score">–</div>
+        <div class="score-label">Overall</div>
+      </div>
+      <div style="margin-top:10px; font-size:14px; font-weight:600;" id="score-label-text"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Breakdown</div>
+      <div class="score-bars" id="score-bars"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💬 Feedback</div>
+      <div id="feedback-items"></div>
+    </div>
+
+    <div class="card" id="filler-detail" style="display:none;">
+      <div class="card-title">Filler Words Used</div>
+      <div id="filler-breakdown"></div>
+    </div>
+
+    <div class="card" id="transcript-annotated-card" style="display:none;">
+      <div class="card-title">Your Transcript</div>
+      <div class="annotated-transcript" id="annotated-transcript"></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveSession()" id="save-btn" style="margin-top:4px; margin-bottom:12px;">💾 Save to Progress</button>
+  </div>
+
+  <!-- LESSONS VIEW -->
+  <div id="view-lessons" class="view">
+    <div class="card-title" style="margin-bottom:12px;">📚 Lessons</div>
+    <div class="lesson-filter" id="lesson-filter">
+      <div class="filter-chip active" data-cat="all" onclick="filterLessons('all')">All</div>
+      <div class="filter-chip" data-cat="fluency" onclick="filterLessons('fluency')">Fluency</div>
+      <div class="filter-chip" data-cat="vocabulary" onclick="filterLessons('vocabulary')">Vocabulary</div>
+      <div class="filter-chip" data-cat="professional" onclick="filterLessons('professional')">Professional</div>
+      <div class="filter-chip" data-cat="pronunciation" onclick="filterLessons('pronunciation')">Pronunciation</div>
+    </div>
+    <div id="lessons-list"></div>
+  </div>
+
+  <!-- PROGRESS VIEW -->
+  <div id="view-progress" class="view">
+    <div class="level-card">
+      <div class="level-name" id="prog-level">Beginner</div>
+      <div class="level-sub" id="prog-goal">Keep practicing daily to level up!</div>
+      <div class="xp-bar-wrap">
+        <div class="xp-bar" id="xp-bar" style="width:10%"></div>
+      </div>
+      <div class="xp-label" id="xp-label">0 / 500 XP to next level</div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Score over time</div>
+      <canvas id="score-chart" height="120"></canvas>
+      <div id="no-chart-msg" style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px 0;">
+        Complete a few sessions to see your progress chart.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Areas to Improve</div>
+      <div id="weak-areas-list">
+        <div style="color:var(--text-muted); font-size:13px;">Complete sessions to see your weak areas.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Session History</div>
+      <div id="session-history">
+        <div style="color:var(--text-muted); font-size:13px;">No sessions yet. Start practicing!</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav-bottom">
+    <button class="nav-item active" data-view="home" onclick="goToView('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="nav-item" data-view="practice" onclick="goToView('practice')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="11" r="4"/><path d="M4 11a8 8 0 0 0 16 0M12 19v3"/></svg>
+      Practice
+    </button>
+    <button class="nav-item" data-view="lessons" onclick="goToView('lessons')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Lessons
+    </button>
+    <button class="nav-item" data-view="progress" onclick="goToView('progress')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Progress
+    </button>
+  </nav>
+
+</div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────────
+
+const FILLER_WORDS = [
+  'um','uh','uhh','umm','er','ah','like','you know','you know what i mean',
+  'basically','literally','actually','honestly','so','right','kind of','sort of',
+  'i mean','whatever','anyway','and stuff','or something','thing is','the thing is',
+  'at the end of the day','to be honest','to be fair','you see'
+];
+
+const TOPICS = {
+  free: null,
+  topic: [
+    "Describe your ideal weekend. What would you do and why?",
+    "What is one skill you wish you had learned earlier in life?",
+    "Talk about a challenge you recently overcame.",
+    "What does success mean to you personally?",
+    "Describe a place that feels special to you.",
+    "What is one habit that has changed your life?",
+    "Talk about someone who has influenced you greatly.",
+    "What would you do if you had one extra hour every day?",
+    "Describe your morning routine and why it works (or doesn't).",
+    "What is the most interesting thing you have learned recently?",
+    "How do you handle stress or pressure at work?",
+    "What are the qualities of a good leader?",
+    "Describe a time when you had to make a difficult decision.",
+    "What technology do you think will change the world in the next 10 years?"
+  ],
+  roleplay: [
+    "You are in a job interview for a position you really want. Introduce yourself and explain why you are the best candidate.",
+    "You are presenting a new idea to your manager. Explain the idea and convince them why the team should pursue it.",
+    "You are at a networking event and meeting a senior professional in your field. Start a conversation and make a strong impression.",
+    "You are calling customer support about a product issue. Be clear, polite, and persistent in resolving the problem.",
+    "You are giving a 2-minute speech at a small company meeting. The topic: what your team accomplished this month.",
+    "A colleague asks for your honest feedback on their presentation. Give constructive criticism without being harsh.",
+    "You are negotiating a deadline extension with your project lead. Make your case professionally.",
+    "You are welcoming a new team member on their first day. Help them feel comfortable and informed."
+  ]
+};
+
+const DAILY_TIPS = [
+  "Replace 'um' and 'uh' with a confident pause. Silence shows you're thinking, not struggling.",
+  "Aim for 130-150 words per minute — fast enough to sound fluent, slow enough to be clear.",
+  "Record yourself for 2 minutes daily. You'll notice patterns you never catch in real-time.",
+  "Use 'First... Second... Finally...' to structure your thoughts. It sounds polished and professional.",
+  "Vocabulary tip: Replace 'get' with more precise verbs — 'obtain', 'achieve', 'receive', 'earn'.",
+  "A pause before answering makes you sound thoughtful, not nervous. Practice the 2-second pause.",
+  "Avoid starting every sentence with 'I'. Vary with 'What I've found is...' or 'The key thing is...'",
+  "Mirror the formality of your conversation partner. Match their vocabulary level and sentence length.",
+  "Stress the most important word in each sentence. 'I LOVE this idea' vs 'I love THIS idea'.",
+  "Replace 'I think' with 'In my view' or 'From my perspective' for a more confident, professional tone.",
+  "End statements with a falling tone, not rising — rising intonation sounds like you're always asking.",
+  "Use transition phrases: 'Building on that...', 'To add to this...', 'What's interesting is...'",
+  "Active voice is clearer: 'The team completed the project' beats 'The project was completed by the team'.",
+  "To sound fluent, use contractions in casual speech: 'I'm' not 'I am', 'they've' not 'they have'."
+];
+
+const LESSONS = [
+  {
+    id: 'filler-words', cat: 'fluency', icon: '🚫',
+    title: 'Kill Filler Words', sub: 'Stop saying um, uh, like',
+    content: `
+      <p><strong>Filler words</strong> are sounds and words we use when we're thinking: <em>um, uh, like, you know, basically, so, right...</em> They make you sound uncertain and less professional — even if your actual ideas are great.</p>
+      <div class="lesson-example">
+        <div class="bad">❌ "So, um, I was thinking that, like, we could, you know, maybe try a different approach?"</div>
+        <div class="good" style="margin-top:6px;">✅ "I think we should try a different approach."</div>
+      </div>
+      <p><strong>Why they happen:</strong> Your brain needs time to form sentences, so it fills the silence. The fix isn't to think faster — it's to get comfortable with <em>silence</em>.</p>
+      <p><strong>3 strategies:</strong></p>
+      <p>1. <strong>Embrace the pause.</strong> When you need to think, just stop. A 1-2 second silence sounds confident, not empty.</p>
+      <p>2. <strong>Slow down.</strong> Most fillers happen because you're speaking faster than you're thinking. Slightly slower = fewer fillers.</p>
+      <p>3. <strong>Record yourself.</strong> You often don't hear your own fillers until you play it back.</p>
+      <div class="lesson-example">Try this: Set a 30-second timer. Speak about your day without using any filler word. When you feel the urge to say "um" — pause instead. Reset the timer each time you fail.</div>
+    `
+  },
+  {
+    id: 'pace', cat: 'fluency', icon: '⏱️',
+    title: 'Speaking Pace', sub: 'Not too fast, not too slow',
+    content: `
+      <p>Pace is one of the first things people notice. Speaking too fast sounds anxious; too slow sounds uncertain. The sweet spot for conversational English is <strong>120-150 words per minute (WPM)</strong>.</p>
+      <div class="lesson-example">
+        <div class="bad">❌ Too fast (180+ WPM): Hard to follow, sounds nervous, words blur together</div>
+        <div class="good" style="margin-top:6px;">✅ 130-150 WPM: Clear, confident, easy to understand</div>
+      </div>
+      <p><strong>How to control pace:</strong></p>
+      <p>1. <strong>Breathe between sentences.</strong> A natural breath creates a natural pause.</p>
+      <p>2. <strong>Stress key words.</strong> When you emphasize important words, you naturally slow down around them.</p>
+      <p>3. <strong>Use strategic pauses.</strong> Pause after making a key point. It lets your listener absorb it — and it gives you a moment to collect your next thought.</p>
+      <p>Pro tip: In this app, the live WPM counter shows your current pace. Aim for the green zone (120-155).</p>
+    `
+  },
+  {
+    id: 'professional-vocab', cat: 'vocabulary', icon: '💼',
+    title: 'Professional Vocabulary', sub: 'Sound polished in any setting',
+    content: `
+      <p>The words you choose signal your confidence level. Upgrading everyday words to professional equivalents makes a big impression.</p>
+      <div class="lesson-example">
+        <table style="width:100%; font-size:13px; border-collapse:collapse;">
+          <tr style="color:var(--text-muted)"><td style="padding:4px 8px">Casual</td><td style="padding:4px 8px">→</td><td style="padding:4px 8px">Professional</td></tr>
+          <tr><td style="padding:4px 8px" class="bad">get</td><td style="padding:4px 8px">→</td><td style="padding:4px 8px" class="good">obtain / acquire / receive</td></tr>
+          <tr><td style="padding:4px 8px" class="bad">do</td><td style="padding:4px 8px">→</td><td style="padding:4px 8px" class="good">execute / implement / accomplish</td></tr>
+          <tr><td style="padding:4px 8px" class="bad">show</td><td style="padding:4px 8px">→</td><td style="padding:4px 8px" class="good">demonstrate / illustrate / highlight</td></tr>
+          <tr><td style="padding:4px 8px" class="bad">help</td><td style="padding:4px 8px">→</td><td style="padding:4px 8px" class="good">assist / support / facilitate</td></tr>
+          <tr><td style="padding:4px 8px" class="bad">make</td><td style="padding:4px 8px">→</td><td style="padding:4px 8px" class="good">create / develop / produce / generate</td></tr>
+          <tr><td style="padding:4px 8px" class="bad">use</td><td style="padding:4px 8px">→</td><td style="padding:4px 8px" class="good">utilize / leverage / apply</td></tr>
+          <tr><td style="padding:4px 8px" class="bad">think</td><td style="padding:4px 8px">→</td><td style="padding:4px 8px" class="good">believe / consider / propose / suggest</td></tr>
+        </table>
+      </div>
+      <p>But don't overdo it. Use professional words when they add clarity — not just to sound smart. One precise word beats three fancy ones.</p>
+    `
+  },
+  {
+    id: 'structure', cat: 'fluency', icon: '🏗️',
+    title: 'Structure Your Speech', sub: 'Clear, logical, persuasive',
+    content: `
+      <p>Rambling is the #1 reason listeners lose interest. Structuring your response makes you sound smart and confident, even on the spot.</p>
+      <p><strong>The PREP framework:</strong></p>
+      <div class="lesson-example">
+        <strong>P</strong>oint – State your main idea first.<br/>
+        <strong>R</strong>eason – Explain why.<br/>
+        <strong>E</strong>xample – Give a specific example.<br/>
+        <strong>P</strong>oint (again) – Restate your conclusion.
+      </div>
+      <div class="lesson-example">
+        <span class="good">Example: "I think remote work is more productive. [Point] When people work from home, they have fewer interruptions. [Reason] In my own case, I finished a 2-week project in 4 days when I worked remotely. [Example] That's why I believe remote work leads to better output." [Point]</span>
+      </div>
+      <p>Use signposting language to guide listeners: <em>"First...", "The key reason is...", "For example...", "In summary..."</em></p>
+    `
+  },
+  {
+    id: 'pronunciation', cat: 'pronunciation', icon: '🗣️',
+    title: 'Pronunciation Essentials', sub: 'Be clear and easy to understand',
+    content: `
+      <p>Good pronunciation isn't about having a perfect accent — it's about being <strong>clearly understood</strong>. Focus on these high-impact areas:</p>
+      <p><strong>1. Word stress</strong><br/>Every multi-syllable word has one stressed syllable. Getting this wrong causes confusion.</p>
+      <div class="lesson-example">
+        pho-TO-graph → PHO-to-graph (noun) → pho-TOG-ra-phy (noun)<br/>
+        pre-SENT (verb) → PRE-sent (noun)<br/>
+        CON-tent → con-TENT (satisfied)
+      </div>
+      <p><strong>2. Sentence stress</strong><br/>In English, the most important word in a sentence is stressed. The others are reduced.</p>
+      <div class="lesson-example">
+        "I didn't say SHE stole the money" (someone else said it)<br/>
+        "I didn't say she STOLE the money" (maybe she borrowed it)<br/>
+        "I didn't say she stole the MONEY" (she stole something else)
+      </div>
+      <p><strong>3. Linking words</strong><br/>In natural speech, words link together. "Did you eat?" sounds like "Dijyeat?". Don't be alarmed — this is fluency.</p>
+    `
+  },
+  {
+    id: 'listening', cat: 'fluency', icon: '👂',
+    title: 'Active Listening', sub: 'React, respond, engage',
+    content: `
+      <p>Good speaking is only half the conversation. Active listening signals intelligence and respect.</p>
+      <p><strong>Use these responses:</strong></p>
+      <div class="lesson-example">
+        To show you're listening: "Absolutely", "Exactly", "I see", "That makes sense", "Right", "Go on..."<br/><br/>
+        To clarify: "Could you elaborate on that?", "What do you mean by...?", "So if I understand correctly..."<br/><br/>
+        To build on what they said: "Building on that point...", "That reminds me of...", "To add to that..."
+      </div>
+      <p><strong>Avoid:</strong> Interrupting mid-sentence, looking at your phone, saying "yeah yeah yeah" impatiently, or jumping to your answer before they finish.</p>
+      <p>The golden rule: Listen to <em>understand</em>, not just to <em>reply</em>.</p>
+    `
+  },
+  {
+    id: 'confidence', cat: 'professional', icon: '💪',
+    title: 'Confident Language', sub: 'Own your words',
+    content: `
+      <p>The same idea said two different ways sends completely different signals about your confidence level.</p>
+      <div class="lesson-example">
+        <div class="bad">❌ "I'm not sure if this is a good idea, but maybe we could possibly try..."</div>
+        <div class="good" style="margin-top:6px;">✅ "Here's what I suggest we try..."</div>
+      </div>
+      <p><strong>Hedge less, assert more:</strong></p>
+      <p>Remove weak qualifiers: <em>kind of, sort of, maybe, possibly, I think perhaps</em> — pick one qualifier if you must, not three.</p>
+      <p><strong>Confident openers:</strong></p>
+      <div class="lesson-example">
+        "From my experience..." | "What I've found is..." | "The data suggests..." | "My recommendation is..." | "Here's my take on that..."
+      </div>
+      <p>Note: Confidence ≠ certainty. You can be confident while acknowledging uncertainty: <em>"I'm not certain, but my best thinking is..."</em></p>
+    `
+  },
+  {
+    id: 'small-talk', cat: 'professional', icon: '☕',
+    title: 'Small Talk Mastery', sub: 'Build rapport naturally',
+    content: `
+      <p>Small talk is a professional skill, not just a social one. It builds trust before important conversations.</p>
+      <p><strong>The FORD method:</strong></p>
+      <div class="lesson-example">
+        <strong>F</strong>amily — "Do you have family nearby?"<br/>
+        <strong>O</strong>ccupation — "How long have you been in this field?"<br/>
+        <strong>R</strong>ecreation — "What do you like to do outside work?"<br/>
+        <strong>D</strong>reams — "What are you hoping to focus on next year?"
+      </div>
+      <p>Don't just answer questions — ask them back. "What about you?" is the single most powerful small talk move.</p>
+      <p><strong>Transitions to deeper conversation:</strong></p>
+      <div class="lesson-example">
+        "That's interesting — how did you get into that?" | "Tell me more about that." | "I'd love to hear your thoughts on..."
+      </div>
+    `
+  }
+];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────────
+
+let userData = null;
+let currentMode = 'free';
+let isRecording = false;
+let recognition = null;
+let sessionTranscript = '';
+let wordTimestamps = [];
+let fillerCount = {};
+let pauseCount = 0;
+let sessionStart = null;
+let sessionTimer = null;
+let lastWordTime = null;
+let pauseThreshold = 2500; // ms
+let currentSession = null;
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+
+function init() {
+  userData = JSON.parse(localStorage.getItem('speakup_user') || 'null');
+  if (!userData) {
+    document.getElementById('setup-screen').style.display = 'block';
+  } else {
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('app').style.flexDirection = 'column';
+    loadHome();
+    renderLessons();
+    renderProgress();
+  }
+}
+
+function finishSetup() {
+  const name = document.getElementById('setup-name').value.trim() || 'Friend';
+  const level = document.getElementById('setup-level').value;
+  const goal = document.getElementById('setup-goal').value;
+  userData = { name, level, goal, created: Date.now(), xp: 0 };
+  localStorage.setItem('speakup_user', JSON.stringify(userData));
+  localStorage.setItem('speakup_sessions', JSON.stringify([]));
+  localStorage.setItem('speakup_lessons', JSON.stringify([]));
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').style.flexDirection = 'column';
+  loadHome();
+  renderLessons();
+  renderProgress();
+}
+
+// ─── NAVIGATION ────────────────────────────────────────────────────────────────
+
+function goToView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add('active');
+  if (view === 'progress') renderProgress();
+  if (view === 'home') loadHome();
+}
+
+function startPractice(mode) {
+  goToView('practice');
+  switchMode(mode);
+}
+
+// ─── HOME ──────────────────────────────────────────────────────────────────────
+
+function loadHome() {
+  if (!userData) return;
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting-text').textContent = `${greet}, ${userData.name}! 👋`;
+
+  const sessions = getSessions();
+  const streak = calcStreak(sessions);
+  document.getElementById('streak-display').textContent = `🔥 ${streak} day${streak !== 1 ? 's' : ''}`;
+  document.getElementById('stat-sessions').textContent = sessions.length;
+  const avgScore = sessions.length ? Math.round(sessions.reduce((a, s) => a + s.score, 0) / sessions.length) : null;
+  document.getElementById('stat-avg').textContent = avgScore !== null ? avgScore : '–';
+  const totalWords = sessions.reduce((a, s) => a + (s.wordCount || 0), 0);
+  document.getElementById('stat-words').textContent = totalWords > 999 ? (totalWords / 1000).toFixed(1) + 'k' : totalWords;
+
+  // Tip
+  const tipIndex = Math.floor(Date.now() / 86400000) % DAILY_TIPS.length;
+  document.getElementById('tip-text').textContent = DAILY_TIPS[tipIndex];
+
+  // Sub greeting
+  const goals = ['Keep practicing — consistency beats perfection!', 'Every session makes you better. Let\'s go!', 'You\'re on a roll! Keep it up!'];
+  document.getElementById('greeting-sub').textContent = sessions.length === 0
+    ? 'Start your first session to get personalized feedback.'
+    : goals[sessions.length % goals.length];
+
+  // Weak areas
+  if (sessions.length >= 2) {
+    const weakAreas = getWeakAreas(sessions);
+    if (weakAreas.length) {
+      document.getElementById('weak-areas-home').style.display = 'block';
+      document.getElementById('weak-areas-home-list').innerHTML = weakAreas.slice(0, 2).map(w =>
+        `<div class="feedback-item"><span class="fi-icon">⚠️</span> <span>${w.message}</span></div>`
+      ).join('');
+    }
+  }
+
+  // Recent session
+  if (sessions.length) {
+    const last = sessions[sessions.length - 1];
+    document.getElementById('recent-home').style.display = 'block';
+    const color = last.score >= 80 ? 'var(--success)' : last.score >= 60 ? 'var(--warning)' : 'var(--danger)';
+    document.getElementById('recent-home-content').innerHTML = `
+      <div class="session-item">
+        <div class="session-score" style="background:${color}22; color:${color};">${last.score}</div>
+        <div class="session-info">
+          <div class="session-title">${last.mode}</div>
+          <div class="session-meta">${last.wordCount} words · ${last.fillerTotal} fillers</div>
+        </div>
+        <div class="session-date">${formatDate(last.date)}</div>
+      </div>
+    `;
+  }
+}
+
+// ─── PRACTICE ──────────────────────────────────────────────────────────────────
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === mode));
+  document.getElementById('topic-area').style.display = mode !== 'free' ? 'block' : 'none';
+  if (mode !== 'free') {
+    document.getElementById('topic-type-label').textContent = mode === 'roleplay' ? '🎭 Roleplay Scenario' : '💬 Speaking Topic';
+    newPrompt();
+  }
+}
+
+function newPrompt() {
+  const pool = TOPICS[currentMode];
+  if (!pool) return;
+  const prompt = pool[Math.floor(Math.random() * pool.length)];
+  document.getElementById('topic-display').textContent = prompt;
+}
+
+function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+    document.getElementById('stop-area').style.display = 'block';
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    document.getElementById('no-support-msg').style.display = 'block';
+    return;
+  }
+
+  sessionTranscript = '';
+  wordTimestamps = [];
+  fillerCount = {};
+  pauseCount = 0;
+  lastWordTime = null;
+
+  document.getElementById('transcript-box').innerHTML = '<span class="transcript-placeholder">Listening...</span>';
+  document.getElementById('stop-area').style.display = 'none';
+  document.getElementById('ls-fillers').textContent = '0';
+  document.getElementById('ls-words').textContent = '0';
+  document.getElementById('ls-pace').textContent = '–';
+
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  let finalTranscript = '';
+  let interimTranscript = '';
+
+  recognition.onstart = () => {
+    isRecording = true;
+    sessionStart = Date.now();
+    document.getElementById('record-btn').classList.add('recording');
+    document.getElementById('record-status').textContent = 'Recording... Speak naturally';
+    document.getElementById('record-time').style.display = 'block';
+    sessionTimer = setInterval(updateTimer, 1000);
+    lastWordTime = Date.now();
+  };
+
+  recognition.onresult = (event) => {
+    interimTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      if (result.isFinal) {
+        const text = result[0].transcript.trim();
+        finalTranscript += ' ' + text;
+
+        // Pause detection
+        const now = Date.now();
+        if (lastWordTime && (now - lastWordTime) > pauseThreshold) {
+          pauseCount++;
+          finalTranscript += ' [pause] ';
+        }
+        lastWordTime = now;
+
+        // Count words & fillers
+        const words = text.toLowerCase().split(/\s+/).filter(Boolean);
+        words.forEach(w => wordTimestamps.push({ word: w, time: now }));
+
+        // Check fillers
+        FILLER_WORDS.forEach(f => {
+          if (text.toLowerCase().includes(f)) {
+            fillerCount[f] = (fillerCount[f] || 0) + 1;
+          }
+        });
+      } else {
+        interimTranscript = result[0].transcript;
+      }
+    }
+
+    sessionTranscript = finalTranscript;
+    updateTranscriptDisplay(finalTranscript, interimTranscript);
+    updateLiveStats();
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error === 'no-speech') return;
+    console.error('Recognition error', e.error);
+  };
+
+  recognition.onend = () => {
+    if (isRecording) recognition.start(); // keep going
+  };
+
+  recognition.start();
+}
+
+function stopRecording() {
+  if (!recognition) return;
+  isRecording = false;
+  recognition.onend = null;
+  recognition.stop();
+  recognition = null;
+  clearInterval(sessionTimer);
+  document.getElementById('record-btn').classList.remove('recording');
+  document.getElementById('record-status').textContent = 'Tap to start recording';
+  document.getElementById('record-time').style.display = 'none';
+}
+
+function stopAndAnalyze() {
+  stopRecording();
+  analyzeSession();
+  goToView('feedback');
+}
+
+function updateTimer() {
+  const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  document.getElementById('record-time').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function updateTranscriptDisplay(final, interim) {
+  let html = highlightFillers(final);
+  if (interim) html += `<span style="color:var(--text-muted)">${interim}</span>`;
+  document.getElementById('transcript-box').innerHTML = html || '<span class="transcript-placeholder">Listening...</span>';
+  document.getElementById('transcript-box').scrollTop = 9999;
+}
+
+function highlightFillers(text) {
+  if (!text) return '';
+  let result = text.replace(/\[pause\]/g, '<span class="pause-mark"> ‖ </span>');
+  FILLER_WORDS.sort((a, b) => b.length - a.length).forEach(f => {
+    const re = new RegExp(`\\b${f.replace(/\s/g, '\\s')}\\b`, 'gi');
+    result = result.replace(re, m => `<span class="filler">${m}</span>`);
+  });
+  return result;
+}
+
+function updateLiveStats() {
+  const totalWords = wordTimestamps.length;
+  document.getElementById('ls-words').textContent = totalWords;
+
+  const totalFillers = Object.values(fillerCount).reduce((a, b) => a + b, 0);
+  const fillerEl = document.getElementById('ls-fillers');
+  fillerEl.textContent = totalFillers;
+  fillerEl.className = 'live-stat-val ' + (totalFillers === 0 ? 'good' : totalFillers < 5 ? 'ok' : 'bad');
+
+  if (totalWords >= 10 && sessionStart) {
+    const elapsed = (Date.now() - sessionStart) / 60000;
+    const wpm = Math.round(totalWords / elapsed);
+    const paceEl = document.getElementById('ls-pace');
+    paceEl.textContent = wpm;
+    paceEl.className = 'live-stat-val ' + (wpm >= 120 && wpm <= 155 ? 'good' : wpm < 100 || wpm > 175 ? 'bad' : 'ok');
+  }
+}
+
+// ─── ANALYSIS ──────────────────────────────────────────────────────────────────
+
+function analyzeSession() {
+  const words = sessionTranscript.replace(/\[pause\]/g, ' ').split(/\s+/).filter(Boolean);
+  const totalWords = words.length;
+  const elapsed = sessionStart ? (Date.now() - sessionStart) / 60000 : 1;
+  const wpm = totalWords > 0 ? Math.round(totalWords / elapsed) : 0;
+
+  const totalFillers = Object.values(fillerCount).reduce((a, b) => a + b, 0);
+  const fillerRate = totalWords > 0 ? totalFillers / totalWords : 0;
+
+  // Vocabulary diversity (type-token ratio)
+  const uniqueWords = new Set(words.map(w => w.toLowerCase().replace(/[^a-z]/g, '')).filter(Boolean));
+  const diversity = totalWords > 0 ? uniqueWords.size / totalWords : 0;
+
+  // Scores (0-100)
+  const fluencyScore = Math.max(0, Math.round(100 - (fillerRate * 400) - (pauseCount * 5)));
+  const paceScore = wpm === 0 ? 50 : Math.max(0, 100 - Math.abs(wpm - 135) * 1.2);
+  const vocabScore = Math.min(100, Math.round(diversity * 200));
+  const overallScore = Math.round((fluencyScore * 0.4) + (paceScore * 0.3) + (vocabScore * 0.3));
+
+  const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
+
+  currentSession = {
+    score: clamp(overallScore),
+    fluencyScore: clamp(fluencyScore),
+    paceScore: clamp(paceScore),
+    vocabScore: clamp(vocabScore),
+    wordCount: totalWords,
+    wpm,
+    fillerCount: { ...fillerCount },
+    fillerTotal: totalFillers,
+    pauseCount,
+    transcript: sessionTranscript,
+    mode: modeLabel(currentMode),
+    date: Date.now()
+  };
+
+  renderFeedback(currentSession);
+}
+
+function modeLabel(mode) {
+  return { free: 'Free Speaking', topic: 'Topic Prompt', roleplay: 'Roleplay' }[mode] || mode;
+}
+
+function renderFeedback(s) {
+  // Score circle color
+  const scoreEl = document.getElementById('overall-score');
+  scoreEl.textContent = s.score;
+  const color = s.score >= 80 ? 'var(--success)' : s.score >= 60 ? 'var(--warning)' : 'var(--danger)';
+  document.getElementById('score-circle').style.borderColor = color;
+  scoreEl.style.color = color;
+
+  const labels = ['Needs Work 💪', 'Getting There 📈', 'Good Job! 👍', 'Excellent! 🌟', 'Outstanding! 🏆'];
+  document.getElementById('score-label-text').textContent = s.score < 40 ? labels[0] : s.score < 55 ? labels[1] : s.score < 70 ? labels[2] : s.score < 85 ? labels[3] : labels[4];
+
+  // Bars
+  const bars = [
+    { label: 'Fluency', val: s.fluencyScore, color: 'var(--primary)' },
+    { label: 'Pace', val: s.paceScore, color: 'var(--success)' },
+    { label: 'Vocabulary', val: s.vocabScore, color: 'var(--accent)' }
+  ];
+  document.getElementById('score-bars').innerHTML = bars.map(b => `
+    <div class="score-bar-row">
+      <div class="score-bar-label">${b.label}</div>
+      <div class="score-bar-track"><div class="score-bar-fill" style="width:${b.val}%; background:${b.color}"></div></div>
+      <div class="score-bar-val" style="color:${b.color}">${b.val}</div>
+    </div>
+  `).join('');
+
+  // Feedback items
+  const items = generateFeedback(s);
+  document.getElementById('feedback-items').innerHTML = items.map(item => `
+    <div class="feedback-item">
+      <span class="fi-icon">${item.icon}</span>
+      <span>${item.text}</span>
+    </div>
+  `).join('');
+
+  // Filler breakdown
+  if (Object.keys(s.fillerCount).length) {
+    document.getElementById('filler-detail').style.display = 'block';
+    const sorted = Object.entries(s.fillerCount).sort((a, b) => b[1] - a[1]);
+    document.getElementById('filler-breakdown').innerHTML = sorted.map(([w, c]) =>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <span><span class="filler" style="background:rgba(255,107,107,0.2);color:var(--danger);border-radius:4px;padding:1px 6px;">${w}</span></span>
+        <span style="color:var(--text-muted)">${c}× · ${Math.round(c / s.wordCount * 100)}% of words</span>
+      </div>`
+    ).join('');
+  } else {
+    document.getElementById('filler-detail').style.display = 'none';
+  }
+
+  // Annotated transcript
+  if (s.transcript.trim()) {
+    document.getElementById('transcript-annotated-card').style.display = 'block';
+    document.getElementById('annotated-transcript').innerHTML = highlightFillers(s.transcript);
+  }
+}
+
+function generateFeedback(s) {
+  const items = [];
+
+  if (s.wordCount < 30) {
+    items.push({ icon: '⏱️', text: 'Your response was quite short. Try to speak for at least 60-90 seconds to build fluency and give yourself more practice time.' });
+  } else if (s.wordCount > 200) {
+    items.push({ icon: '✅', text: `Great speaking length — ${s.wordCount} words! Longer sessions help you build real fluency.` });
+  }
+
+  if (s.fillerTotal === 0) {
+    items.push({ icon: '🌟', text: 'Zero filler words detected! Excellent discipline. Keep this up — it makes you sound very professional.' });
+  } else if (s.fillerTotal <= 3) {
+    items.push({ icon: '👍', text: `Only ${s.fillerTotal} filler word(s). That's quite good. Work on replacing them with a confident pause.` });
+  } else if (s.fillerTotal <= 8) {
+    items.push({ icon: '⚠️', text: `${s.fillerTotal} filler words detected. When you feel the urge to say "um" or "like", just pause for 1-2 seconds instead. It sounds more confident.` });
+  } else {
+    items.push({ icon: '🚨', text: `${s.fillerTotal} filler words — that's on the higher side. This is the #1 thing to work on. Practice the "silent pause" technique: when you need to think, stop talking for 1-2 seconds.` });
+  }
+
+  if (s.wpm === 0) {
+    // no speech
+  } else if (s.wpm < 100) {
+    items.push({ icon: '🐢', text: `Your pace was slow at ${s.wpm} WPM. Aim for 120-150 WPM for natural conversational English. Slow pace can signal lack of confidence.` });
+  } else if (s.wpm > 175) {
+    items.push({ icon: '🏃', text: `You spoke at ${s.wpm} WPM — a bit fast. Slow down slightly to give listeners time to follow. Fast speech also tends to increase filler word use.` });
+  } else {
+    items.push({ icon: '✅', text: `Good speaking pace at ${s.wpm} WPM — right in the natural conversational range. Listeners can follow you easily.` });
+  }
+
+  if (s.pauseCount > 3) {
+    items.push({ icon: '⏸️', text: `${s.pauseCount} long pauses detected. Some pausing is natural and good, but frequent long pauses disrupt flow. Prepare key ideas in advance to reduce them.` });
+  } else if (s.pauseCount > 0) {
+    items.push({ icon: '✅', text: `${s.pauseCount} strategic pause(s) detected. Well-placed pauses show you're thoughtful — keep using them intentionally.` });
+  }
+
+  if (s.vocabScore < 40) {
+    items.push({ icon: '📖', text: 'Try using more varied vocabulary. Repeating the same words frequently reduces your impact. Aim to use synonyms and expand your word choice.' });
+  } else if (s.vocabScore >= 70) {
+    items.push({ icon: '📚', text: 'Great vocabulary diversity! You used a good range of different words, which makes your speech more engaging and professional.' });
+  }
+
+  if (items.length === 0) {
+    items.push({ icon: 'ℹ️', text: 'Speak for longer to get more detailed feedback. Aim for at least 30 seconds of continuous speech.' });
+  }
+
+  return items;
+}
+
+// ─── SAVE SESSION ──────────────────────────────────────────────────────────────
+
+function saveSession() {
+  if (!currentSession) return;
+  const sessions = getSessions();
+  sessions.push(currentSession);
+  localStorage.setItem('speakup_sessions', JSON.stringify(sessions));
+
+  // XP
+  userData.xp = (userData.xp || 0) + Math.round(currentSession.score / 10) + 5;
+  localStorage.setItem('speakup_user', JSON.stringify(userData));
+
+  document.getElementById('save-btn').textContent = '✅ Saved!';
+  document.getElementById('save-btn').disabled = true;
+  currentSession = null;
+}
+
+// ─── LESSONS ──────────────────────────────────────────────────────────────────
+
+let currentLessonFilter = 'all';
+
+function renderLessons(filter) {
+  if (filter) currentLessonFilter = filter;
+  const completed = getCompletedLessons();
+  const filtered = LESSONS.filter(l => currentLessonFilter === 'all' || l.cat === currentLessonFilter);
+
+  document.getElementById('lessons-list').innerHTML = filtered.map(lesson => `
+    <div class="lesson-card ${completed.includes(lesson.id) ? 'completed' : ''}" id="lc-${lesson.id}">
+      <div class="lesson-header" onclick="toggleLesson('${lesson.id}')">
+        <div class="lesson-icon">${lesson.icon}</div>
+        <div class="lesson-meta">
+          <div class="lesson-title">${lesson.title}</div>
+          <div class="lesson-sub">
+            ${completed.includes(lesson.id) ? '✅ ' : ''}<span class="badge badge-primary">${lesson.cat}</span>
+            &nbsp;${lesson.sub}
+          </div>
+        </div>
+        <div class="lesson-chevron">▾</div>
+      </div>
+      <div class="lesson-body">
+        ${lesson.content}
+        <button class="btn btn-sm ${completed.includes(lesson.id) ? 'btn-outline' : 'btn-primary'} lesson-complete-btn"
+          onclick="markLessonDone('${lesson.id}')">
+          ${completed.includes(lesson.id) ? '✅ Completed' : 'Mark as Done ✓'}
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterLessons(cat) {
+  currentLessonFilter = cat;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.cat === cat));
+  renderLessons(cat);
+}
+
+function toggleLesson(id) {
+  const card = document.getElementById('lc-' + id);
+  card.classList.toggle('open');
+}
+
+function markLessonDone(id) {
+  const completed = getCompletedLessons();
+  if (!completed.includes(id)) {
+    completed.push(id);
+    localStorage.setItem('speakup_lessons', JSON.stringify(completed));
+    userData.xp = (userData.xp || 0) + 20;
+    localStorage.setItem('speakup_user', JSON.stringify(userData));
+  }
+  renderLessons();
+}
+
+function getCompletedLessons() {
+  return JSON.parse(localStorage.getItem('speakup_lessons') || '[]');
+}
+
+// ─── PROGRESS ──────────────────────────────────────────────────────────────────
+
+let scoreChartInstance = null;
+
+function renderProgress() {
+  if (!userData) return;
+  const sessions = getSessions();
+  const xp = userData.xp || 0;
+  const levels = ['Beginner', 'Elementary', 'Intermediate', 'Upper-Intermediate', 'Advanced', 'Expert'];
+  const xpPerLevel = 500;
+  const levelIndex = Math.min(Math.floor(xp / xpPerLevel), levels.length - 1);
+  const levelXP = xp % xpPerLevel;
+
+  document.getElementById('prog-level').textContent = levels[levelIndex];
+  document.getElementById('prog-goal').textContent = levelIndex < levels.length - 1
+    ? `${xpPerLevel - levelXP} XP to ${levels[levelIndex + 1]}` : 'Max level reached!';
+  document.getElementById('xp-bar').style.width = (levelXP / xpPerLevel * 100) + '%';
+  document.getElementById('xp-label').textContent = `${xp} total XP · ${levelXP}/${xpPerLevel} XP this level`;
+
+  // Score chart
+  if (sessions.length >= 2) {
+    document.getElementById('no-chart-msg').style.display = 'none';
+    const labels = sessions.slice(-10).map(s => formatDate(s.date));
+    const data = sessions.slice(-10).map(s => s.score);
+    const ctx = document.getElementById('score-chart').getContext('2d');
+    if (scoreChartInstance) scoreChartInstance.destroy();
+    scoreChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Score',
+          data,
+          borderColor: '#6C63FF',
+          backgroundColor: 'rgba(108,99,255,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#6C63FF',
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8888AA' } },
+          x: { grid: { display: false }, ticks: { color: '#8888AA', maxRotation: 45 } }
+        }
+      }
+    });
+  } else {
+    document.getElementById('no-chart-msg').style.display = 'block';
+  }
+
+  // Weak areas
+  if (sessions.length >= 1) {
+    const weakAreas = getWeakAreaData(sessions);
+    document.getElementById('weak-areas-list').innerHTML = weakAreas.map(w => `
+      <div class="weak-area-item">
+        <div class="weak-area-label">${w.label}</div>
+        <div class="weak-area-bar"><div class="weak-area-fill" style="width:${w.score}%; background:${w.color}"></div></div>
+        <div class="weak-area-pct" style="color:${w.color}">${w.score}</div>
+      </div>
+    `).join('');
+  }
+
+  // Session history
+  if (sessions.length) {
+    document.getElementById('session-history').innerHTML = sessions.slice().reverse().slice(0, 10).map(s => {
+      const color = s.score >= 80 ? 'var(--success)' : s.score >= 60 ? 'var(--warning)' : 'var(--danger)';
+      return `
+        <div class="session-item">
+          <div class="session-score" style="background:${color}22; color:${color};">${s.score}</div>
+          <div class="session-info">
+            <div class="session-title">${s.mode}</div>
+            <div class="session-meta">${s.wordCount} words · ${s.wpm} WPM · ${s.fillerTotal} fillers</div>
+          </div>
+          <div class="session-date">${formatDate(s.date)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function getWeakAreaData(sessions) {
+  if (!sessions.length) return [];
+  const avg = (key) => Math.round(sessions.reduce((a, s) => a + (s[key] || 0), 0) / sessions.length);
+  return [
+    { label: 'Fluency', score: avg('fluencyScore'), color: scoreColor(avg('fluencyScore')) },
+    { label: 'Pace', score: avg('paceScore'), color: scoreColor(avg('paceScore')) },
+    { label: 'Vocabulary', score: avg('vocabScore'), color: scoreColor(avg('vocabScore')) }
+  ];
+}
+
+function getWeakAreas(sessions) {
+  const data = getWeakAreaData(sessions);
+  return data.filter(a => a.score < 60).map(a => ({
+    message: `Your <strong>${a.label}</strong> score averages ${a.score}/100. Focus on ${a.label.toLowerCase()}-related lessons.`
+  }));
+}
+
+function scoreColor(score) {
+  return score >= 70 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)';
+}
+
+// ─── UTILS ─────────────────────────────────────────────────────────────────────
+
+function getSessions() {
+  return JSON.parse(localStorage.getItem('speakup_sessions') || '[]');
+}
+
+function calcStreak(sessions) {
+  if (!sessions.length) return 0;
+  const today = new Date().setHours(0,0,0,0);
+  const dates = [...new Set(sessions.map(s => new Date(s.date).setHours(0,0,0,0)))].sort((a,b) => b-a);
+  if (dates[0] < today - 86400000) return 0;
+  let streak = 1;
+  for (let i = 1; i < dates.length; i++) {
+    if (dates[i-1] - dates[i] === 86400000) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  const today = new Date();
+  const diff = today.setHours(0,0,0,0) - d.setHours(0,0,0,0);
+  if (diff === 0) return 'Today';
+  if (diff === 86400000) return 'Yesterday';
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+// ─── START ─────────────────────────────────────────────────────────────────────
+
+init();
+</script>
+</body>
+</html>
