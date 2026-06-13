@@ -452,6 +452,20 @@
     0%, 100% { transform: scaleY(0.5); }
     50% { transform: scaleY(1.4); }
   }
+  .roleplay-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .roleplay-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .roleplay-card.active { border-color: var(--primary); background: rgba(10,191,188,0.1); }
+  .roleplay-card .rc-icon { font-size: 26px; margin-bottom: 5px; }
+  .roleplay-card .rc-name { font-size: 12px; font-weight: 600; }
+
   .api-key-notice {
     background: rgba(255,112,67,0.1); border: 1px solid rgba(255,112,67,0.3);
     border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.5;
@@ -578,10 +592,50 @@
       <div class="mode-chip" data-mode="ai" onclick="switchMode('ai')">🤖 AI Chat</div>
     </div>
 
-    <div id="topic-area" class="card" style="display:none; padding:14px;">
-      <div class="topic-label" id="topic-type-label">Topic</div>
-      <div class="topic-display" id="topic-display">Press 🎲 to get a prompt</div>
-      <button class="btn btn-outline btn-sm" onclick="newPrompt()" style="width:auto; margin-top:10px;">🎲 New prompt</button>
+    <!-- TOPIC MODE PANEL -->
+    <div id="topic-area" style="display:none; margin-bottom:14px;">
+
+      <div id="topic-panel" style="display:none;">
+        <div class="card" style="padding:14px;">
+          <div class="topic-label">💬 What's your topic?</div>
+          <div class="topic-display" id="topic-display" style="margin:10px 0; min-height:48px;">Pick a suggestion or type your own below.</div>
+          <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="newPrompt()">🎲 Random</button>
+            <button class="btn btn-outline btn-sm" id="ai-topic-btn" onclick="aiSuggestTopic()">🤖 AI Suggest</button>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="custom-topic-input" class="input-field" placeholder="Type your own topic..." style="flex:1; padding:10px 12px; font-size:13px;" />
+            <button class="btn btn-primary btn-sm" onclick="setCustomTopic()">Set</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="roleplay-panel" style="display:none;">
+        <div class="card-title" style="margin-bottom:10px;">🎭 Choose a Scenario</div>
+        <div id="roleplay-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;"></div>
+        <div id="roleplay-selected-card" style="display:none;" class="card">
+          <div style="font-size:11px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;" id="roleplay-sel-title">Selected</div>
+          <div style="font-size:13px; color:var(--text-muted); line-height:1.5;" id="roleplay-sel-desc"></div>
+        </div>
+
+        <!-- Custom scenario form (hidden by default) -->
+        <div id="custom-roleplay-form" style="display:none;" class="card">
+          <div style="font-size:13px; font-weight:700; margin-bottom:10px;">✏️ Create Custom Scenario</div>
+          <div class="input-group" style="margin-bottom:10px;">
+            <label class="input-label">Scenario name</label>
+            <input type="text" id="custom-rp-name" class="input-field" placeholder="e.g. Doctor's Appointment" />
+          </div>
+          <div class="input-group" style="margin-bottom:10px;">
+            <label class="input-label">Context (what should you practice?)</label>
+            <textarea id="custom-rp-desc" class="input-field" rows="3" placeholder="e.g. You are explaining your symptoms to a doctor. Practice being clear and descriptive." style="resize:none; line-height:1.5;"></textarea>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-primary btn-sm" onclick="saveCustomRoleplay()">Save & Select</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('custom-roleplay-form').style.display='none'">Cancel</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <div class="record-area">
@@ -819,6 +873,17 @@ const TOPICS = {
     "You are welcoming a new team member on their first day. Help them feel comfortable and informed."
   ]
 };
+
+const ROLEPLAY_SCENARIOS = [
+  { id: 'job_interview',  icon: '💼', name: 'Job Interview',   desc: 'Answer interview questions for a role you want. Focus on confidence and structure.' },
+  { id: 'presentation',  icon: '📊', name: 'Presentation',    desc: 'Present a project or idea to your team. Be clear, concise, and persuasive.' },
+  { id: 'client_call',   icon: '📞', name: 'Client Call',     desc: 'Speak with a client about your product, service, or a problem they have.' },
+  { id: 'team_meeting',  icon: '🤝', name: 'Team Meeting',    desc: 'Give a project update and discuss priorities in a professional team meeting.' },
+  { id: 'negotiation',   icon: '⚖️', name: 'Negotiation',    desc: 'Negotiate a deadline, salary, or project scope calmly and professionally.' },
+  { id: 'networking',    icon: '🌐', name: 'Networking',      desc: 'Introduce yourself to a senior professional and make a lasting impression.' },
+];
+
+let currentRoleplayScenario = null;
 
 const DAILY_TIPS = [
   "Replace 'um' and 'uh' with a confident pause. Silence shows you're thinking, not struggling.",
@@ -1106,19 +1171,155 @@ function loadHome() {
 
 function switchMode(mode) {
   currentMode = mode;
-  document.querySelectorAll('.mode-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === mode));
-  document.getElementById('topic-area').style.display = mode !== 'free' ? 'block' : 'none';
-  if (mode !== 'free') {
-    document.getElementById('topic-type-label').textContent = mode === 'roleplay' ? '🎭 Roleplay Scenario' : '💬 Speaking Topic';
+
+  // Highlight the correct chip
+  document.querySelectorAll('.mode-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.mode === mode);
+  });
+
+  const aiPanel = document.getElementById('ai-chat-panel');
+  const stopArea = document.getElementById('stop-area');
+  const liveStats = document.querySelector('.live-stats');
+  const recordArea = document.getElementById('record-area');
+  const transcriptSection = document.getElementById('transcript-section');
+
+  if (mode === 'ai') {
+    aiPanel.style.display = 'block';
+    recordArea.style.display = 'none';
+    if (liveStats) liveStats.style.display = 'none';
+    transcriptSection.style.display = 'none';
+    stopArea.style.display = 'none';
+    if (isRecording) stopRecording();
+  } else {
+    aiPanel.style.display = 'none';
+    recordArea.style.display = '';
+    if (liveStats) liveStats.style.display = '';
+    transcriptSection.style.display = '';
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  }
+
+  document.getElementById('topic-area').style.display = (mode === 'topic' || mode === 'roleplay') ? 'block' : 'none';
+  document.getElementById('topic-panel').style.display = mode === 'topic' ? 'block' : 'none';
+  document.getElementById('roleplay-panel').style.display = mode === 'roleplay' ? 'block' : 'none';
+
+  if (mode === 'topic') {
     newPrompt();
+  }
+  if (mode === 'roleplay') {
+    renderRoleplayGrid();
   }
 }
 
 function newPrompt() {
-  const pool = TOPICS[currentMode];
+  const pool = TOPICS['topic'];
   if (!pool) return;
   const prompt = pool[Math.floor(Math.random() * pool.length)];
   document.getElementById('topic-display').textContent = prompt;
+}
+
+function setCustomTopic() {
+  const val = document.getElementById('custom-topic-input').value.trim();
+  if (val) {
+    document.getElementById('topic-display').textContent = val;
+    document.getElementById('custom-topic-input').value = '';
+  }
+}
+
+async function aiSuggestTopic() {
+  const btn = document.getElementById('ai-topic-btn');
+  const key = localStorage.getItem('groq_key');
+  if (!key) {
+    // Fall back to random if no key
+    newPrompt();
+    document.getElementById('topic-display').textContent += ' (tip: add a Groq key in ⚙️ for AI-generated topics)';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+  const result = await callGroq([
+    { role: 'system', content: 'You are an English speaking coach.' },
+    { role: 'user', content: 'Give me ONE interesting, specific speaking practice topic. Should be thought-provoking but conversational. Just the topic, no explanation. Max 15 words.' }
+  ]);
+  btn.disabled = false;
+  btn.textContent = '🤖 AI Suggest';
+  if (result) {
+    document.getElementById('topic-display').textContent = result.trim().replace(/^["'`]|["'`]$/g, '');
+  }
+}
+
+function getCustomScenarios() {
+  return JSON.parse(localStorage.getItem('speakup_custom_rp') || '[]');
+}
+
+function renderRoleplayGrid() {
+  const custom = getCustomScenarios();
+  const all = [...ROLEPLAY_SCENARIOS, ...custom];
+  const grid = document.getElementById('roleplay-grid');
+
+  grid.innerHTML = all.map(s => `
+    <div class="roleplay-card ${currentRoleplayScenario?.id === s.id ? 'active' : ''}" id="rp-${s.id}" onclick="selectRoleplay('${s.id}')">
+      <div class="rc-icon">${s.icon}</div>
+      <div class="rc-name" style="font-size:11px;">${s.name}</div>
+      ${s.custom ? `<div onclick="event.stopPropagation(); deleteCustomRoleplay('${s.id}')" style="font-size:10px; color:var(--danger); margin-top:4px;">✕ remove</div>` : ''}
+    </div>
+  `).join('') + `
+    <div class="roleplay-card" onclick="openCustomRoleplayForm()" style="border-style:dashed;">
+      <div class="rc-icon">＋</div>
+      <div class="rc-name" style="font-size:11px; color:var(--primary);">Custom</div>
+    </div>
+  `;
+
+  if (currentRoleplayScenario) {
+    document.getElementById('roleplay-selected-card').style.display = 'block';
+    document.getElementById('roleplay-sel-title').textContent = currentRoleplayScenario.icon + ' ' + currentRoleplayScenario.name;
+    document.getElementById('roleplay-sel-desc').textContent = currentRoleplayScenario.desc;
+  }
+}
+
+function selectRoleplay(id) {
+  const custom = getCustomScenarios();
+  currentRoleplayScenario = [...ROLEPLAY_SCENARIOS, ...custom].find(s => s.id === id);
+  document.querySelectorAll('.roleplay-card').forEach(c => c.classList.remove('active'));
+  const el = document.getElementById('rp-' + id);
+  if (el) el.classList.add('active');
+  document.getElementById('roleplay-selected-card').style.display = 'block';
+  document.getElementById('roleplay-sel-title').textContent = currentRoleplayScenario.icon + ' ' + currentRoleplayScenario.name;
+  document.getElementById('roleplay-sel-desc').textContent = currentRoleplayScenario.desc;
+  document.getElementById('custom-roleplay-form').style.display = 'none';
+}
+
+function openCustomRoleplayForm() {
+  document.getElementById('custom-roleplay-form').style.display = 'block';
+  document.getElementById('custom-rp-name').focus();
+}
+
+function saveCustomRoleplay() {
+  const name = document.getElementById('custom-rp-name').value.trim();
+  const desc = document.getElementById('custom-rp-desc').value.trim();
+  if (!name) { alert('Please enter a scenario name.'); return; }
+
+  const custom = getCustomScenarios();
+  const id = 'custom_' + Date.now();
+  const scenario = { id, icon: '🎯', name, desc: desc || 'Practice this custom scenario.', custom: true };
+  custom.push(scenario);
+  localStorage.setItem('speakup_custom_rp', JSON.stringify(custom));
+
+  document.getElementById('custom-rp-name').value = '';
+  document.getElementById('custom-rp-desc').value = '';
+  document.getElementById('custom-roleplay-form').style.display = 'none';
+
+  renderRoleplayGrid();
+  selectRoleplay(id);
+}
+
+function deleteCustomRoleplay(id) {
+  const custom = getCustomScenarios().filter(s => s.id !== id);
+  localStorage.setItem('speakup_custom_rp', JSON.stringify(custom));
+  if (currentRoleplayScenario?.id === id) {
+    currentRoleplayScenario = null;
+    document.getElementById('roleplay-selected-card').style.display = 'none';
+  }
+  renderRoleplayGrid();
 }
 
 function toggleRecording() {
@@ -1920,37 +2121,6 @@ function speakText(text) {
   if (preferred) utter.voice = preferred;
 
   window.speechSynthesis.speak(utter);
-}
-
-// Patch switchMode to handle AI mode
-const _origSwitchMode = switchMode;
-function switchMode(mode) {
-  const aiPanel = document.getElementById('ai-chat-panel');
-  const stopArea = document.getElementById('stop-area');
-  const liveStats = document.querySelector('.live-stats');
-
-  if (mode === 'ai') {
-    aiPanel.style.display = 'block';
-    document.getElementById('record-area').style.display = 'none';
-    if (liveStats) liveStats.style.display = 'none';
-    document.getElementById('transcript-section').style.display = 'none';
-    stopArea.style.display = 'none';
-    if (isRecording) stopRecording();
-  } else {
-    aiPanel.style.display = 'none';
-    document.getElementById('record-area').style.display = '';
-    if (liveStats) liveStats.style.display = '';
-    document.getElementById('transcript-section').style.display = '';
-    window.speechSynthesis && window.speechSynthesis.cancel();
-  }
-
-  currentMode = mode;
-  document.querySelectorAll('.mode-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === mode));
-  document.getElementById('topic-area').style.display = (mode === 'topic' || mode === 'roleplay') ? 'block' : 'none';
-  if (mode === 'topic' || mode === 'roleplay') {
-    document.getElementById('topic-type-label').textContent = mode === 'roleplay' ? '🎭 Roleplay Scenario' : '💬 Speaking Topic';
-    newPrompt();
-  }
 }
 
 // ─── THEME ─────────────────────────────────────────────────────────────────────
