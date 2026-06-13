@@ -384,6 +384,185 @@
     line-height: 1.5; display: none;
   }
 
+  /* ── RIGHT PANEL COMPONENTS ── */
+  .drp-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .drp-label {
+    font-size: 11px; font-weight: 700; color: var(--primary);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .drp-stat-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 10px; text-align: center;
+  }
+  .drp-stat-val { font-size: 20px; font-weight: 700; color: var(--primary); }
+  .drp-stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── DESKTOP LAYOUT ── */
+  @media (max-width: 899px) {
+    /* Mobile-only: hide desktop elements */
+    .desktop-nav-logo, .desktop-nav-section-label, .desktop-nav-footer, .desktop-right-panel { display: none !important; }
+  }
+
+  @media (min-width: 900px) {
+    body {
+      max-width: 100vw;
+      min-height: 100vh;
+      flex-direction: row;
+      align-items: stretch;
+      background:
+        radial-gradient(ellipse 35% 70% at 0% 50%, rgba(10,191,188,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse 25% 50% at 100% 30%, rgba(255,112,67,0.04) 0%, transparent 50%),
+        var(--bg);
+    }
+
+    #app {
+      display: grid !important;
+      grid-template-columns: 240px 1fr 280px;
+      grid-template-rows: auto 1fr;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    #setup-screen {
+      max-width: 480px;
+      margin: 60px auto;
+      width: 480px;
+    }
+
+    /* Top nav: header of center column */
+    .nav-top {
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    /* Hide logo in top nav — sidebar has it */
+    .nav-top .logo { display: none !important; }
+
+    /* Views: center column — natural page scroll, sidebars sticky */
+    .view {
+      grid-column: 2;
+      grid-row: 2;
+      padding: 28px 36px 48px;
+    }
+
+    /* ── LEFT SIDEBAR ── */
+    .nav-bottom {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      border-top: none;
+      padding: 24px 16px;
+      gap: 2px;
+      background: var(--surface);
+    }
+
+    .nav-item {
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      text-align: left;
+      height: auto;
+      width: 100%;
+      font-weight: 500;
+    }
+    .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .nav-item.active { background: rgba(10,191,188,0.12); }
+
+    /* Desktop sidebar additions */
+    .desktop-nav-logo {
+      display: flex !important;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px 24px;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .desktop-nav-logo span { color: var(--primary); }
+
+    .desktop-nav-section-label {
+      display: block !important;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 14px 8px 6px;
+    }
+
+    .desktop-nav-footer {
+      display: flex !important;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .desktop-nav-footer-btn {
+      display: flex !important;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      transition: color 0.2s, background 0.2s;
+    }
+    .desktop-nav-footer-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+    body.light .desktop-nav-footer-btn:hover { background: rgba(0,0,0,0.04); }
+
+    /* ── RIGHT PANEL ── */
+    .desktop-right-panel {
+      grid-column: 3;
+      grid-row: 1 / 3;
+      display: block !important;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      padding: 24px 20px;
+    }
+
+    /* Wider view adjustments */
+    .stats-row { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    #view-home .greeting { font-size: 26px; }
+    .ai-chat-box { height: 360px; }
+    .transcript-box { max-height: 300px; }
+  }
+
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -830,7 +1009,53 @@
     </div>
   </div>
 
+  <!-- DESKTOP RIGHT PANEL (hidden on mobile via CSS) -->
+  <aside class="desktop-right-panel" style="display:none;">
+    <div style="margin-bottom:24px;">
+      <div style="font-size:17px; font-weight:700; margin-bottom:4px;" id="drp-greeting">Keep going! 🚀</div>
+      <div style="font-size:13px; color:var(--text-muted);" id="drp-subtext">Every session makes you better.</div>
+    </div>
+
+    <div class="drp-card">
+      <div class="drp-label">📊 Your Stats</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+        <div class="drp-stat-box"><div class="drp-stat-val" id="drp-sessions">0</div><div class="drp-stat-lbl">Sessions</div></div>
+        <div class="drp-stat-box"><div class="drp-stat-val" id="drp-avg">–</div><div class="drp-stat-lbl">Avg Score</div></div>
+        <div class="drp-stat-box"><div class="drp-stat-val" id="drp-streak">🔥 0</div><div class="drp-stat-lbl">Day Streak</div></div>
+        <div class="drp-stat-box"><div class="drp-stat-val" id="drp-words">0</div><div class="drp-stat-lbl">Words Said</div></div>
+      </div>
+    </div>
+
+    <div class="drp-card">
+      <div class="drp-label">💡 Today's Tip</div>
+      <div style="font-size:13px; line-height:1.6; color:var(--text-muted); margin-top:8px;" id="drp-tip">Loading tip...</div>
+    </div>
+
+    <div class="drp-card">
+      <div class="drp-label">🎯 Daily Challenge</div>
+      <div style="font-size:13px; line-height:1.6; color:var(--text-muted); margin-top:8px;" id="drp-challenge">–</div>
+    </div>
+
+    <div class="drp-card" style="margin-bottom:0;">
+      <div class="drp-label">📖 Word of the Day</div>
+      <div style="font-size:22px; font-weight:700; color:var(--primary); margin:8px 0 4px;" id="drp-word">–</div>
+      <div style="font-size:12px; color:var(--text-muted); line-height:1.5;" id="drp-def">–</div>
+    </div>
+  </aside>
+
   <nav class="nav-bottom">
+    <!-- Desktop sidebar: logo header -->
+    <div class="desktop-nav-logo" style="display:none;">
+      <svg width="22" height="18" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="6" width="3" height="6" rx="1.5" fill="#0ABFBC"/>
+        <rect x="5" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
+        <rect x="10" y="0" width="3" height="18" rx="1.5" fill="#0ABFBC"/>
+        <rect x="15" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
+        <rect x="20" y="6" width="2" height="6" rx="1" fill="#0ABFBC"/>
+      </svg>Speak<span>Up</span>
+    </div>
+    <span class="desktop-nav-section-label" style="display:none;">Navigate</span>
+
     <button class="nav-item active" data-view="home" onclick="goToView('home')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Home
@@ -847,6 +1072,19 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Progress
     </button>
+
+    <!-- Desktop sidebar: footer actions -->
+    <div class="desktop-nav-footer" style="display:none;">
+      <div id="desktop-streak-display" style="padding:8px 16px 10px; font-size:13px; color:var(--warning); font-weight:600;">🔥 0 days</div>
+      <button class="desktop-nav-footer-btn" onclick="toggleTheme()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <span id="desktop-theme-label">Toggle Theme</span>
+      </button>
+      <button class="desktop-nav-footer-btn" onclick="openSettings()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </div>
   </nav>
 
 </div>
@@ -1182,6 +1420,67 @@ function loadHome() {
       </div>
     `;
   }
+
+  updateDesktopPanel();
+}
+
+function updateDesktopPanel() {
+  const sessions = getSessions();
+  const streak = calcStreak(sessions);
+  const avgScore = sessions.length ? Math.round(sessions.reduce((a, s) => a + s.score, 0) / sessions.length) : null;
+  const totalWords = sessions.reduce((a, s) => a + (s.wordCount || 0), 0);
+
+  const el = id => document.getElementById(id);
+  if (el('drp-sessions')) el('drp-sessions').textContent = sessions.length;
+  if (el('drp-avg')) el('drp-avg').textContent = avgScore !== null ? avgScore : '–';
+  if (el('drp-streak')) el('drp-streak').textContent = `🔥 ${streak}`;
+  if (el('drp-words')) el('drp-words').textContent = totalWords > 999 ? (totalWords / 1000).toFixed(1) + 'k' : totalWords;
+  if (el('desktop-streak-display')) el('desktop-streak-display').textContent = `🔥 ${streak} day${streak !== 1 ? 's' : ''}`;
+
+  // Tip
+  const tipIndex = Math.floor(Date.now() / 86400000) % DAILY_TIPS.length;
+  if (el('drp-tip')) el('drp-tip').textContent = DAILY_TIPS[tipIndex];
+
+  // Right panel greeting
+  const hour = new Date().getHours();
+  if (el('drp-greeting')) {
+    const greet = hour < 12 ? '☀️ Good morning!' : hour < 18 ? '👋 Good afternoon!' : '🌙 Good evening!';
+    el('drp-greeting').textContent = greet;
+  }
+
+  // Daily challenge
+  const CHALLENGES = [
+    'Speak for 3 min without "um" or "uh"',
+    'Record yourself on a topic for 2 minutes',
+    'Practice a work meeting roleplay scenario',
+    'Use 3 transition phrases in one session',
+    'Hit 130–150 WPM in a Free Speaking session',
+    'Complete a Lessons card you haven\'t read yet',
+    'Try the AI Chat in a job interview scenario',
+  ];
+  const chalIndex = Math.floor(Date.now() / 86400000) % CHALLENGES.length;
+  if (el('drp-challenge')) el('drp-challenge').textContent = CHALLENGES[chalIndex];
+
+  // Word of the day
+  const WORDS = [
+    { word: 'eloquent', def: 'Fluent and persuasive in speaking. "She gave an eloquent speech."' },
+    { word: 'articulate', def: 'Having or showing the ability to speak clearly. "He was very articulate in the meeting."' },
+    { word: 'concise', def: 'Giving a lot of information clearly in a few words. "Keep your answer concise."' },
+    { word: 'coherent', def: 'Logical and consistent. "Make sure your argument is coherent."' },
+    { word: 'nuanced', def: 'Characterized by subtle shades of meaning. "A nuanced response shows deep understanding."' },
+    { word: 'persuasive', def: 'Good at convincing people. "A persuasive speaker changes minds."' },
+    { word: 'candid', def: 'Truthful and straightforward. "Be candid about your experience."' },
+    { word: 'tactful', def: 'Having skill in dealing with sensitive topics. "A tactful communicator avoids offence."' },
+    { word: 'rapport', def: 'A close, harmonious relationship. "Build rapport before making your pitch."' },
+    { word: 'enunciate', def: 'To say or pronounce words clearly. "Enunciate clearly when presenting."' },
+    { word: 'verbose', def: 'Using more words than needed. "Avoid being verbose — get to the point."' },
+    { word: 'succinct', def: 'Briefly and clearly expressed. "A succinct answer is better than a long one."' },
+    { word: 'assertive', def: 'Confident in stating your view. "Assertive speakers are heard and respected."' },
+    { word: 'fluent', def: 'Able to express yourself easily. "Fluent speakers make conversation effortless."' },
+  ];
+  const wordIndex = Math.floor(Date.now() / 86400000) % WORDS.length;
+  if (el('drp-word')) el('drp-word').textContent = WORDS[wordIndex].word;
+  if (el('drp-def')) el('drp-def').textContent = WORDS[wordIndex].def;
 }
 
 // ─── PRACTICE ──────────────────────────────────────────────────────────────────
@@ -2138,6 +2437,56 @@ function speakText(text) {
   if (preferred) utter.voice = preferred;
 
   window.speechSynthesis.speak(utter);
+}
+
+// ─── DESKTOP PANELS ────────────────────────────────────────────────────────────
+
+const WORDS_OF_DAY = [
+  { word: 'Articulate', pron: 'adj. /ɑːrˈtɪk.jʊ.lət/', def: 'Having the ability to speak fluently and coherently; expressing thoughts clearly.', example: '"She was an articulate speaker who captivated the entire audience."' },
+  { word: 'Eloquent', pron: 'adj. /ˈel.ə.kwənt/', def: 'Fluent or persuasive in speaking or writing; clearly expressing strong emotions or opinions.', example: '"His eloquent speech moved everyone in the room to tears."' },
+  { word: 'Concise', pron: 'adj. /kənˈsaɪs/', def: 'Giving a lot of information clearly using few words; brief but comprehensive.', example: '"Her concise answer covered all the key points in under a minute."' },
+  { word: 'Fluent', pron: 'adj. /ˈfluː.ənt/', def: 'Able to express oneself easily and articulately; smooth and effortless in speech.', example: '"After months of practice, he became fluent in professional conversation."' },
+  { word: 'Persuasive', pron: 'adj. /pəˈsweɪ.sɪv/', def: 'Good at convincing someone to believe or do something through reasoning or argument.', example: '"Her persuasive tone made it easy for the team to agree with her proposal."' },
+  { word: 'Candid', pron: 'adj. /ˈkæn.dɪd/', def: 'Truthful and straightforward; frank and honest in expressing thoughts.', example: '"I appreciate candid feedback — it helps me improve much faster."' },
+  { word: 'Succinct', pron: 'adj. /səkˈsɪŋkt/', def: 'Briefly and clearly expressed; using few words to convey a lot of meaning.', example: '"Keep your introduction succinct — no more than 30 seconds."' },
+  { word: 'Emphatic', pron: 'adj. /ɪmˈfæt.ɪk/', def: 'Showing or giving emphasis; expressing something forcibly and clearly.', example: '"She gave an emphatic nod to signal her full agreement."' },
+  { word: 'Tactful', pron: 'adj. /ˈtækt.fəl/', def: 'Having or showing skill and sensitivity in dealing with others or difficult situations.', example: '"A tactful communicator knows when to speak and when to listen."' },
+  { word: 'Assertive', pron: 'adj. /əˈsɜː.tɪv/', def: 'Confident and direct in claiming one\'s rights or stating one\'s needs.', example: '"Being assertive doesn\'t mean being aggressive — it means being clear and confident."' },
+  { word: 'Nuanced', pron: 'adj. /ˈnjuː.ɑːnst/', def: 'Characterized by subtle distinctions; having shades of difference.', example: '"A nuanced speaker can express complex ideas without oversimplifying them."' },
+  { word: 'Vernacular', pron: 'n. /vəˈnæk.jʊ.lər/', def: 'The language or dialect spoken by ordinary people; everyday informal speech.', example: '"Understanding the vernacular helps you connect naturally with native speakers."' },
+  { word: 'Cadence', pron: 'n. /ˈkeɪ.dəns/', def: 'The rhythmic rise and fall of the voice when speaking; the natural flow of language.', example: '"His cadence was calm and measured, making every word feel deliberate."' },
+  { word: 'Diction', pron: 'n. /ˈdɪk.ʃən/', def: 'The choice and use of words in speech; the style of enunciation in speaking.', example: '"Clear diction makes a huge difference in how professional you sound."' },
+];
+
+const DESKTOP_QUOTES = [
+  { text: 'You can have brilliant ideas, but if you can\'t get them across, your ideas won\'t get you anywhere.', author: 'Lee Iacocca' },
+  { text: 'The most important thing in communication is hearing what isn\'t said.', author: 'Peter Drucker' },
+  { text: 'Speech is power: speech is to persuade, to convert, to compel.', author: 'Ralph Waldo Emerson' },
+  { text: 'Electric communication will never be a substitute for the face of someone who with their soul encourages another person to be brave and true.', author: 'Charles Dickens' },
+  { text: 'Kind words can be short and easy to speak, but their echoes are truly endless.', author: 'Mother Teresa' },
+  { text: 'To effectively communicate, we must realize that we are all different in the way we perceive the world.', author: 'Tony Robbins' },
+  { text: 'The art of communication is the language of leadership.', author: 'James Humes' },
+  { text: 'Take advantage of every opportunity to practice your communication skills.', author: 'Jim Rohn' },
+  { text: 'Speak clearly, if you speak at all; carve every word before you let it fall.', author: 'Oliver Wendell Holmes' },
+  { text: 'Words are, of course, the most powerful drug used by mankind.', author: 'Rudyard Kipling' },
+];
+
+function loadDesktopPanels() {
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  const wotd = WORDS_OF_DAY[dayIndex % WORDS_OF_DAY.length];
+  const quote = DESKTOP_QUOTES[dayIndex % DESKTOP_QUOTES.length];
+
+  const w = document.getElementById('wotd-word');
+  if (w) {
+    w.textContent = wotd.word;
+    document.getElementById('wotd-pron').textContent = wotd.pron;
+    document.getElementById('wotd-def').textContent = wotd.def;
+    document.getElementById('wotd-example').textContent = wotd.example;
+  }
+  const q = document.getElementById('desktop-quote');
+  if (q) {
+    q.innerHTML = `"${quote.text}" <cite>— ${quote.author}</cite>`;
+  }
 }
 
 // ─── THEME ─────────────────────────────────────────────────────────────────────
