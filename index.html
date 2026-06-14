@@ -1673,6 +1673,8 @@ function startRecording() {
 
   let finalTranscript = '';
   let interimTranscript = '';
+  let lastCommittedTail = ''; // tail of committed text saved before each session restart
+  let freshSession = false;   // true = first isFinal after a restart needs overlap check
 
   recognition.onstart = () => {
     isRecording = true;
@@ -1689,7 +1691,19 @@ function startRecording() {
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const result = event.results[i];
       if (result.isFinal) {
-        const text = result[0].transcript.trim();
+        let text = result[0].transcript.trim();
+        if (!text) continue;
+
+        // Dedup look-back overlap caused by session restart on mobile
+        if (freshSession) {
+          freshSession = false;
+          if (lastCommittedTail) {
+            text = removeOverlap(lastCommittedTail, text);
+            lastCommittedTail = '';
+            if (!text) continue; // entire result was a duplicate — skip it
+          }
+        }
+
         finalTranscript += ' ' + text;
 
         // Pause detection
@@ -1726,7 +1740,13 @@ function startRecording() {
   };
 
   recognition.onend = () => {
-    if (isRecording) recognition.start(); // keep going
+    if (isRecording) {
+      // Snapshot the last 8 committed words so the new session can strip any look-back overlap
+      const cleanWords = finalTranscript.replace(/\[pause\]/g, '').trim().split(/\s+/).filter(Boolean);
+      lastCommittedTail = cleanWords.slice(-8).join(' ');
+      freshSession = true;
+      recognition.start();
+    }
   };
 
   recognition.start();
@@ -2126,6 +2146,21 @@ function scoreColor(score) {
 
 function getSessions() {
   return JSON.parse(localStorage.getItem('speakup_sessions') || '[]');
+}
+
+// Strips the longest suffix of `tail` that matches a prefix of `incoming`.
+// Used to remove look-back duplicates after a speech recognition session restarts.
+function removeOverlap(tail, incoming) {
+  const tailW = tail.toLowerCase().split(/\s+/).filter(Boolean);
+  const inW   = incoming.toLowerCase().split(/\s+/).filter(Boolean);
+  const origW = incoming.trim().split(/\s+/).filter(Boolean);
+  const max   = Math.min(tailW.length, inW.length, 7);
+  for (let n = max; n >= 2; n--) { // minimum 2-word match to avoid false positives
+    if (tailW.slice(-n).join(' ') === inW.slice(0, n).join(' ')) {
+      return origW.slice(n).join(' ');
+    }
+  }
+  return incoming;
 }
 
 function calcStreak(sessions) {
