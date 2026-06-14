@@ -570,6 +570,135 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .fade-in { animation: fadeIn 0.3s ease; }
 
+  /* ── LANDING PAGE ── */
+  .landing-wrapper {
+    display: flex;
+    min-height: 100vh;
+  }
+  /* LEFT: hero / mascot / features */
+  .landing-left {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    background:
+      radial-gradient(ellipse 70% 60% at 30% 40%, rgba(10,191,188,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,112,67,0.05) 0%, transparent 60%),
+      var(--bg);
+  }
+  /* RIGHT: form panel */
+  .landing-right {
+    width: 420px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    padding: 48px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+  }
+
+  /* Mascot */
+  .mascot-wrap { position: relative; width: 220px; height: 240px; margin: 0 auto 16px; }
+  .mascot-svg  { animation: mascot-float 3.5s ease-in-out infinite; }
+  @keyframes mascot-float {
+    0%,100% { transform: translateY(0px); }
+    50%      { transform: translateY(-14px); }
+  }
+  .ear-l1,.ear-r1 { animation: ear-pulse 1.6s ease-in-out infinite 0.0s; transform-origin: bottom center; }
+  .ear-l2,.ear-r2 { animation: ear-pulse 1.6s ease-in-out infinite 0.2s; transform-origin: bottom center; }
+  .ear-l3,.ear-r3 { animation: ear-pulse 1.6s ease-in-out infinite 0.4s; transform-origin: bottom center; }
+  @keyframes ear-pulse {
+    0%,100% { transform: scaleY(0.6); }
+    50%      { transform: scaleY(1.3); }
+  }
+  .speak-w1 { animation: speak-wave 2.2s ease-out infinite 0.0s; }
+  .speak-w2 { animation: speak-wave 2.2s ease-out infinite 0.35s; }
+  .speak-w3 { animation: speak-wave 2.2s ease-out infinite 0.7s; }
+  @keyframes speak-wave {
+    0%   { opacity:0; transform: translateY(0) scale(0.85); }
+    40%  { opacity:0.7; }
+    100% { opacity:0; transform: translateY(10px) scale(1.2); }
+  }
+
+  /* Floating feature pills around mascot */
+  .feat-pill {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    animation: pill-float 4s ease-in-out infinite;
+  }
+  .feat-pill .pill-icon { font-size: 16px; }
+  @keyframes pill-float {
+    0%,100% { transform: translateY(0px); }
+    50%      { transform: translateY(-7px); }
+  }
+
+  /* How it helps steps */
+  .how-steps {
+    display: flex;
+    gap: 12px;
+    margin-top: 36px;
+    width: 100%;
+    max-width: 480px;
+  }
+  .how-step {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .how-step::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(10,191,188,0.06), transparent);
+    pointer-events: none;
+  }
+  .how-step-num {
+    width: 24px; height: 24px;
+    background: var(--primary);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 800;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .how-step-icon { font-size: 24px; margin-bottom: 8px; }
+  .how-step-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .how-step-desc  { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+
+  /* Mobile: stack form on top */
+  @media (max-width: 899px) {
+    .landing-wrapper { flex-direction: column; }
+    .landing-right {
+      width: 100%; min-height: auto;
+      border-left: none; border-bottom: 1px solid var(--border);
+    }
+    .landing-left { padding: 32px 20px; }
+    .how-steps { flex-direction: column; }
+    .feat-pill { font-size: 11px; padding: 6px 11px; }
+  }
+
   /* Profile setup */
   .input-group { margin-bottom: 14px; text-align: left; }
   .input-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; }
@@ -651,104 +780,187 @@
 <body>
 
 <!-- LANDING / SETUP SCREEN -->
-<div id="setup-screen" style="display:none; min-height:100vh; overflow-y:auto; background:var(--bg);">
+<div id="setup-screen" style="display:none; background:var(--bg);">
+<div class="landing-wrapper">
 
-  <!-- ── HERO + FORM ── -->
-  <div style="max-width:480px; margin:0 auto; padding:48px 24px 32px; text-align:center;">
-    <svg width="52" height="42" viewBox="0 0 22 18" fill="none" style="margin-bottom:16px;">
-      <rect x="0" y="6" width="3" height="6" rx="1.5" fill="#0ABFBC"/>
-      <rect x="5" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
-      <rect x="10" y="0" width="3" height="18" rx="1.5" fill="#0ABFBC"/>
-      <rect x="15" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
-      <rect x="20" y="6" width="2" height="6" rx="1" fill="#0ABFBC"/>
-    </svg>
-    <h1 id="setup-title" style="font-size:30px; font-weight:800; margin-bottom:8px;">Welcome to <span style="color:var(--primary)">SpeakUp</span></h1>
-    <p id="setup-subtitle" style="color:var(--text-muted); font-size:15px; line-height:1.6; margin-bottom:20px;">Your personal English speaking coach — listen, analyse, and improve every session.</p>
+  <!-- ══ LEFT: mascot + features ══ -->
+  <div class="landing-left">
+
+    <!-- Tagline -->
+    <div style="text-align:center; margin-bottom:28px;">
+      <div style="font-size:11px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px;">English Speaking Coach</div>
+      <div style="font-size:28px; font-weight:800; line-height:1.2; margin-bottom:10px;">Speak with confidence.<br><span style="color:var(--primary);">Every single day.</span></div>
+      <div style="font-size:14px; color:var(--text-muted); max-width:360px; margin:0 auto; line-height:1.6;">Listen to yourself, catch bad habits, and improve with every session — guided by AI.</div>
+    </div>
+
+    <!-- MASCOT + floating pills -->
+    <div class="mascot-wrap" style="width:260px; height:300px;">
+
+      <!-- Floating feature pills (scattered) -->
+      <div class="feat-pill" style="top:8px; left:-30px; animation-delay:0s;">
+        <span class="pill-icon">🎙️</span>Free Speaking
+      </div>
+      <div class="feat-pill" style="top:20px; right:-20px; animation-delay:0.8s;">
+        <span class="pill-icon">🤖</span>AI Chat
+      </div>
+      <div class="feat-pill" style="top:50%; left:-55px; animation-delay:1.4s;">
+        <span class="pill-icon">🎭</span>Roleplay
+      </div>
+      <div class="feat-pill" style="top:55%; right:-40px; animation-delay:0.5s;">
+        <span class="pill-icon">📊</span>Progress
+      </div>
+      <div class="feat-pill" style="bottom:30px; left:10px; animation-delay:1.9s;">
+        <span class="pill-icon">📚</span>Lessons
+      </div>
+      <div class="feat-pill" style="bottom:20px; right:0px; animation-delay:1.1s;">
+        <span class="pill-icon">💬</span>Topics
+      </div>
+
+      <!-- MASCOT SVG -->
+      <svg class="mascot-svg" viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg"
+           style="position:absolute; left:50%; top:10px; transform:translateX(-50%); width:180px;">
+
+        <!-- Glow -->
+        <circle cx="100" cy="115" r="90" fill="rgba(10,191,188,0.07)"/>
+
+        <!-- Audio-bar "ears" (left) -->
+        <rect class="ear-l3" x="22" y="42" width="9" height="22" rx="4.5" fill="#0ABFBC"/>
+        <rect class="ear-l2" x="35" y="28" width="9" height="36" rx="4.5" fill="#0ABFBC"/>
+        <rect class="ear-l1" x="48" y="36" width="9" height="28" rx="4.5" fill="#0ABFBC"/>
+
+        <!-- Audio-bar "ears" (right) -->
+        <rect class="ear-r1" x="143" y="36" width="9" height="28" rx="4.5" fill="#0ABFBC"/>
+        <rect class="ear-r2" x="156" y="28" width="9" height="36" rx="4.5" fill="#0ABFBC"/>
+        <rect class="ear-r3" x="169" y="42" width="9" height="22" rx="4.5" fill="#0ABFBC"/>
+
+        <!-- Body -->
+        <ellipse cx="100" cy="178" rx="42" ry="46" fill="#089E9B"/>
+
+        <!-- Head -->
+        <circle cx="100" cy="100" r="54" fill="#0ABFBC"/>
+
+        <!-- Cheeks -->
+        <circle cx="70" cy="116" r="12" fill="rgba(255,112,67,0.35)"/>
+        <circle cx="130" cy="116" r="12" fill="rgba(255,112,67,0.35)"/>
+
+        <!-- Eyes white -->
+        <circle cx="82" cy="92" r="15" fill="white"/>
+        <circle cx="118" cy="92" r="15" fill="white"/>
+        <!-- Pupils -->
+        <circle cx="85" cy="95" r="7" fill="#0a0f1e"/>
+        <circle cx="121" cy="95" r="7" fill="#0a0f1e"/>
+        <!-- Eye shine -->
+        <circle cx="88" cy="91" r="3" fill="white"/>
+        <circle cx="124" cy="91" r="3" fill="white"/>
+
+        <!-- Smile -->
+        <path d="M 82 118 Q 100 134 118 118" stroke="white" fill="none" stroke-width="4.5" stroke-linecap="round"/>
+
+        <!-- Speaking waves emanating downward -->
+        <path class="speak-w1" d="M 84 142 Q 100 150 116 142" stroke="white" fill="none" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
+        <path class="speak-w2" d="M 77 156 Q 100 167 123 156" stroke="white" fill="none" stroke-width="3" stroke-linecap="round" opacity="0"/>
+        <path class="speak-w3" d="M 70 170 Q 100 184 130 170" stroke="white" fill="none" stroke-width="2.5" stroke-linecap="round" opacity="0"/>
+
+        <!-- Arms (little stubs waving) -->
+        <ellipse cx="57" cy="170" rx="13" ry="20" fill="#089E9B" transform="rotate(-25 57 170)"/>
+        <ellipse cx="143" cy="170" rx="13" ry="20" fill="#089E9B" transform="rotate(25 143 170)"/>
+
+        <!-- Feet -->
+        <ellipse cx="86" cy="220" rx="17" ry="8" fill="#078080"/>
+        <ellipse cx="114" cy="220" rx="17" ry="8" fill="#078080"/>
+      </svg>
+    </div>
+
+    <!-- HOW PRACTISING HELPS -->
+    <div style="text-align:center; margin-bottom:14px; margin-top:4px;">
+      <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">How it works</div>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <div class="how-step-icon">🎙️</div>
+        <div class="how-step-title">Speak naturally</div>
+        <div class="how-step-desc">Talk freely or follow a prompt. The app listens and transcribes in real-time.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <div class="how-step-icon">🔍</div>
+        <div class="how-step-title">AI spots issues</div>
+        <div class="how-step-desc">Filler words, awkward pauses, pace — caught and highlighted instantly.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <div class="how-step-icon">📈</div>
+        <div class="how-step-title">You improve</div>
+        <div class="how-step-desc">Session scores, progress charts, and AI coaching show your growth over time.</div>
+      </div>
+    </div>
+
+    <!-- Trust footer -->
+    <div style="margin-top:24px; font-size:12px; color:var(--text-muted); text-align:center; line-height:1.8;">
+      🔒 No servers · No tracking · No ads · Export your data any time
+    </div>
+
+  </div><!-- /landing-left -->
+
+  <!-- ══ RIGHT: login form ══ -->
+  <div class="landing-right">
+
+    <!-- Logo -->
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:32px;">
+      <svg width="32" height="26" viewBox="0 0 22 18" fill="none">
+        <rect x="0" y="6" width="3" height="6" rx="1.5" fill="#0ABFBC"/>
+        <rect x="5" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
+        <rect x="10" y="0" width="3" height="18" rx="1.5" fill="#0ABFBC"/>
+        <rect x="15" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
+        <rect x="20" y="6" width="2" height="6" rx="1" fill="#0ABFBC"/>
+      </svg>
+      <span style="font-size:22px; font-weight:800; letter-spacing:-0.5px;">Speak<span style="color:var(--primary);">Up</span></span>
+    </div>
+
+    <h2 id="setup-title" style="font-size:24px; font-weight:800; margin-bottom:6px;">Get started</h2>
+    <p id="setup-subtitle" style="color:var(--text-muted); font-size:14px; margin-bottom:20px; line-height:1.5;">Set up your profile in 30 seconds. No account needed.</p>
 
     <!-- Returning-user notice -->
-    <div id="returning-notice" style="display:none; background:rgba(10,191,188,0.12); border:1px solid rgba(10,191,188,0.3); border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:13px; line-height:1.5; text-align:left;">
-      ✅ Your progress is safe — just confirm your profile below to continue.
+    <div id="returning-notice" style="display:none; background:rgba(10,191,188,0.12); border:1px solid rgba(10,191,188,0.3); border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:13px; line-height:1.5;">
+      ✅ Your progress is saved — just confirm your profile to continue.
     </div>
 
-    <!-- FORM CARD -->
-    <div style="background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:24px; text-align:left; margin-bottom:16px;">
-      <div class="input-group">
-        <label class="input-label">Your name</label>
-        <input type="text" id="setup-name" class="input-field" placeholder="e.g. John Doe" />
-      </div>
-      <div class="input-group">
-        <label class="input-label">Current English level</label>
-        <select id="setup-level" class="input-field">
-          <option value="beginner">Beginner – just getting started</option>
-          <option value="intermediate" selected>Intermediate – can hold basic conversations</option>
-          <option value="upper">Upper-Intermediate – fairly fluent, want to polish</option>
-          <option value="advanced">Advanced – professional-level fluency</option>
-        </select>
-      </div>
-      <div class="input-group" style="margin-bottom:0;">
-        <label class="input-label">Main goal</label>
-        <select id="setup-goal" class="input-field">
-          <option value="fluency">Sound more fluent & natural</option>
-          <option value="professional">Professional / business English</option>
-          <option value="confidence">Build confidence speaking</option>
-          <option value="all" selected>All of the above</option>
-        </select>
-      </div>
+    <div class="input-group">
+      <label class="input-label">Your name</label>
+      <input type="text" id="setup-name" class="input-field" placeholder="e.g. John Doe" />
+    </div>
+    <div class="input-group">
+      <label class="input-label">Current English level</label>
+      <select id="setup-level" class="input-field">
+        <option value="beginner">Beginner – just getting started</option>
+        <option value="intermediate" selected>Intermediate – can hold basic conversations</option>
+        <option value="upper">Upper-Intermediate – fairly fluent, want to polish</option>
+        <option value="advanced">Advanced – professional-level fluency</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Main goal</label>
+      <select id="setup-goal" class="input-field">
+        <option value="fluency">Sound more fluent & natural</option>
+        <option value="professional">Professional / business English</option>
+        <option value="confidence">Build confidence speaking</option>
+        <option value="all" selected>All of the above</option>
+      </select>
     </div>
 
-    <button class="btn btn-primary" onclick="finishSetup()" style="font-size:16px; padding:14px 24px;">Let's go! 🚀</button>
-    <p style="margin-top:12px; font-size:12px; color:var(--text-muted);">No account needed · Everything saved on your device · 100% private</p>
-  </div>
+    <button class="btn btn-primary" onclick="finishSetup()" style="margin-top:8px; font-size:16px; padding:14px;">
+      Let's go! 🚀
+    </button>
 
-  <!-- ── FEATURES SHOWCASE ── -->
-  <div style="max-width:640px; margin:0 auto; padding:0 24px 60px;">
-    <div style="text-align:center; margin-bottom:24px;">
-      <div style="font-size:11px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">What's inside</div>
-      <div style="font-size:20px; font-weight:700;">Everything you need to speak better</div>
+    <div style="margin-top:16px; padding:14px; background:var(--surface2); border-radius:12px; font-size:12px; color:var(--text-muted); line-height:1.7; text-align:center;">
+      Everything stays on <strong>your device</strong>.<br>You can export or delete your data from Settings at any time.
     </div>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
-        <div style="font-size:28px; margin-bottom:8px;">🎙️</div>
-        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Free Speaking</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Speak freely on any topic. Get real-time filler word detection, pace tracking, and pause analysis.</div>
-      </div>
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
-        <div style="font-size:28px; margin-bottom:8px;">💬</div>
-        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Topic Prompts</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Guided conversation starters to push you out of your comfort zone and build vocabulary.</div>
-      </div>
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
-        <div style="font-size:28px; margin-bottom:8px;">🎭</div>
-        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Roleplay Scenarios</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Practice job interviews, meetings, travel, and everyday situations. Add your own custom scenarios.</div>
-      </div>
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
-        <div style="font-size:28px; margin-bottom:8px;">🤖</div>
-        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">AI Conversation</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Have a live conversation with an AI partner. It responds, coaches you in real-time, and speaks back.</div>
-      </div>
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
-        <div style="font-size:28px; margin-bottom:8px;">📊</div>
-        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Progress Tracking</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Score every session across fluency, pace, and vocabulary. See your weak areas and watch them improve.</div>
-      </div>
-      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
-        <div style="font-size:28px; margin-bottom:8px;">📚</div>
-        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Lessons Library</div>
-        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Bite-sized lessons on filler words, pace, pronunciation, professional English, and more.</div>
-      </div>
-    </div>
+  </div><!-- /landing-right -->
 
-    <!-- Bottom trust line -->
-    <div style="text-align:center; padding:20px; background:var(--surface); border:1px solid var(--border); border-radius:16px;">
-      <div style="font-size:22px; margin-bottom:8px;">🔒</div>
-      <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Your data stays with you</div>
-      <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">No servers. No tracking. No ads. Everything is stored on your device. You can export or delete it any time from Settings.</div>
-    </div>
-  </div>
-
-</div>
+</div><!-- /landing-wrapper -->
+</div><!-- /setup-screen -->
 
 <!-- MAIN APP -->
 <div id="app">
