@@ -48,6 +48,10 @@
     position: relative;
   }
 
+  /* APP VISIBILITY — controlled by class, not inline style */
+  #app { display: none; }
+  #app.app-visible { display: flex; flex-direction: column; min-height: 100vh; }
+
   /* NAV */
   .nav-top {
     display: flex;
@@ -421,20 +425,14 @@
         var(--bg);
     }
 
-    #app {
-      display: grid !important;
+    #app.app-visible {
+      display: grid;
       grid-template-columns: 240px 1fr 280px;
       grid-template-rows: auto 1fr;
       width: 100%;
       max-width: 1400px;
       margin: 0 auto;
       min-height: 100vh;
-    }
-
-    #setup-screen {
-      max-width: 480px;
-      margin: 60px auto;
-      width: 480px;
     }
 
     /* Top nav: header of center column */
@@ -573,9 +571,6 @@
   .fade-in { animation: fadeIn 0.3s ease; }
 
   /* Profile setup */
-  .setup-screen { padding: 40px 20px; text-align: center; }
-  .setup-screen h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-  .setup-screen p { color: var(--text-muted); margin-bottom: 32px; line-height: 1.6; }
   .input-group { margin-bottom: 14px; text-align: left; }
   .input-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; }
   .input-field {
@@ -655,52 +650,108 @@
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
-<div id="setup-screen" class="setup-screen" style="display:none;">
-  <div style="margin-bottom:16px;">
-    <svg width="64" height="52" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- LANDING / SETUP SCREEN -->
+<div id="setup-screen" style="display:none; min-height:100vh; overflow-y:auto; background:var(--bg);">
+
+  <!-- ── HERO + FORM ── -->
+  <div style="max-width:480px; margin:0 auto; padding:48px 24px 32px; text-align:center;">
+    <svg width="52" height="42" viewBox="0 0 22 18" fill="none" style="margin-bottom:16px;">
       <rect x="0" y="6" width="3" height="6" rx="1.5" fill="#0ABFBC"/>
       <rect x="5" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
       <rect x="10" y="0" width="3" height="18" rx="1.5" fill="#0ABFBC"/>
       <rect x="15" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
       <rect x="20" y="6" width="2" height="6" rx="1" fill="#0ABFBC"/>
     </svg>
+    <h1 id="setup-title" style="font-size:30px; font-weight:800; margin-bottom:8px;">Welcome to <span style="color:var(--primary)">SpeakUp</span></h1>
+    <p id="setup-subtitle" style="color:var(--text-muted); font-size:15px; line-height:1.6; margin-bottom:20px;">Your personal English speaking coach — listen, analyse, and improve every session.</p>
+
+    <!-- Returning-user notice -->
+    <div id="returning-notice" style="display:none; background:rgba(10,191,188,0.12); border:1px solid rgba(10,191,188,0.3); border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:13px; line-height:1.5; text-align:left;">
+      ✅ Your progress is safe — just confirm your profile below to continue.
+    </div>
+
+    <!-- FORM CARD -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:24px; text-align:left; margin-bottom:16px;">
+      <div class="input-group">
+        <label class="input-label">Your name</label>
+        <input type="text" id="setup-name" class="input-field" placeholder="e.g. John Doe" />
+      </div>
+      <div class="input-group">
+        <label class="input-label">Current English level</label>
+        <select id="setup-level" class="input-field">
+          <option value="beginner">Beginner – just getting started</option>
+          <option value="intermediate" selected>Intermediate – can hold basic conversations</option>
+          <option value="upper">Upper-Intermediate – fairly fluent, want to polish</option>
+          <option value="advanced">Advanced – professional-level fluency</option>
+        </select>
+      </div>
+      <div class="input-group" style="margin-bottom:0;">
+        <label class="input-label">Main goal</label>
+        <select id="setup-goal" class="input-field">
+          <option value="fluency">Sound more fluent & natural</option>
+          <option value="professional">Professional / business English</option>
+          <option value="confidence">Build confidence speaking</option>
+          <option value="all" selected>All of the above</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="finishSetup()" style="font-size:16px; padding:14px 24px;">Let's go! 🚀</button>
+    <p style="margin-top:12px; font-size:12px; color:var(--text-muted);">No account needed · Everything saved on your device · 100% private</p>
   </div>
-  <h1 id="setup-title">Welcome to <span style="color:var(--primary)">SpeakUp</span></h1>
-  <p id="setup-subtitle">Your personal English speaking coach. Let's personalize your experience in 30 seconds.</p>
-  <!-- shown only when returning after logout -->
-  <div id="returning-notice" style="display:none; background:rgba(10,191,188,0.12); border:1px solid rgba(10,191,188,0.3); border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:13px; line-height:1.5;">
-    ✅ Your progress is safe — just update your profile below to continue.
+
+  <!-- ── FEATURES SHOWCASE ── -->
+  <div style="max-width:640px; margin:0 auto; padding:0 24px 60px;">
+    <div style="text-align:center; margin-bottom:24px;">
+      <div style="font-size:11px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">What's inside</div>
+      <div style="font-size:20px; font-weight:700;">Everything you need to speak better</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
+        <div style="font-size:28px; margin-bottom:8px;">🎙️</div>
+        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Free Speaking</div>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Speak freely on any topic. Get real-time filler word detection, pace tracking, and pause analysis.</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
+        <div style="font-size:28px; margin-bottom:8px;">💬</div>
+        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Topic Prompts</div>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Guided conversation starters to push you out of your comfort zone and build vocabulary.</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
+        <div style="font-size:28px; margin-bottom:8px;">🎭</div>
+        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Roleplay Scenarios</div>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Practice job interviews, meetings, travel, and everyday situations. Add your own custom scenarios.</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
+        <div style="font-size:28px; margin-bottom:8px;">🤖</div>
+        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">AI Conversation</div>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Have a live conversation with an AI partner. It responds, coaches you in real-time, and speaks back.</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
+        <div style="font-size:28px; margin-bottom:8px;">📊</div>
+        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Progress Tracking</div>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Score every session across fluency, pace, and vocabulary. See your weak areas and watch them improve.</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px;">
+        <div style="font-size:28px; margin-bottom:8px;">📚</div>
+        <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Lessons Library</div>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">Bite-sized lessons on filler words, pace, pronunciation, professional English, and more.</div>
+      </div>
+    </div>
+
+    <!-- Bottom trust line -->
+    <div style="text-align:center; padding:20px; background:var(--surface); border:1px solid var(--border); border-radius:16px;">
+      <div style="font-size:22px; margin-bottom:8px;">🔒</div>
+      <div style="font-size:14px; font-weight:700; margin-bottom:4px;">Your data stays with you</div>
+      <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">No servers. No tracking. No ads. Everything is stored on your device. You can export or delete it any time from Settings.</div>
+    </div>
   </div>
-  <div class="input-group">
-    <label class="input-label">Your name</label>
-    <input type="text" id="setup-name" class="input-field" placeholder="e.g. JI" />
-  </div>
-  <div class="input-group">
-    <label class="input-label">Current English level</label>
-    <select id="setup-level" class="input-field">
-      <option value="beginner">Beginner – I'm just getting started</option>
-      <option value="intermediate" selected>Intermediate – I can hold basic conversations</option>
-      <option value="upper">Upper-Intermediate – Fairly fluent, want to polish</option>
-      <option value="advanced">Advanced – Professional-level fluency</option>
-    </select>
-  </div>
-  <div class="input-group">
-    <label class="input-label">Main goal</label>
-    <select id="setup-goal" class="input-field">
-      <option value="fluency">Sound more fluent & natural</option>
-      <option value="professional">Professional / business English</option>
-      <option value="confidence">Build confidence speaking</option>
-      <option value="all" selected>All of the above</option>
-    </select>
-  </div>
-  <br/>
-  <button class="btn btn-primary" onclick="finishSetup()">Let's go! 🚀</button>
-  <p style="margin-top:14px; font-size:12px; color:var(--text-muted)">Everything is saved locally on your device. No account needed.</p>
+
 </div>
 
 <!-- MAIN APP -->
-<div id="app" style="display:none; flex-direction:column; min-height:100vh; display:none;">
+<div id="app">
 
   <div class="nav-top">
     <div class="logo">
@@ -1346,8 +1397,7 @@ function init() {
   if (!userData) {
     document.getElementById('setup-screen').style.display = 'block';
   } else {
-    document.getElementById('app').style.display = 'flex';
-    document.getElementById('app').style.flexDirection = 'column';
+    document.getElementById('app').classList.add('app-visible');
     loadHome();
     renderLessons();
     renderProgress();
@@ -1364,8 +1414,7 @@ function finishSetup() {
   if (!localStorage.getItem('speakup_sessions')) localStorage.setItem('speakup_sessions', JSON.stringify([]));
   if (!localStorage.getItem('speakup_lessons'))  localStorage.setItem('speakup_lessons',  JSON.stringify([]));
   document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  document.getElementById('app').style.flexDirection = 'column';
+  document.getElementById('app').classList.add('app-visible');
   loadHome();
   renderLessons();
   renderProgress();
@@ -2238,7 +2287,7 @@ function logoutUser() {
   }
 
   // Show setup screen with returning-user notice
-  document.getElementById('app').style.display = 'none';
+  document.getElementById('app').classList.remove('app-visible');
   const notice = document.getElementById('returning-notice');
   const title   = document.getElementById('setup-title');
   const subtitle = document.getElementById('setup-subtitle');
