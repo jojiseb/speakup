@@ -666,8 +666,12 @@
       <rect x="20" y="6" width="2" height="6" rx="1" fill="#0ABFBC"/>
     </svg>
   </div>
-  <h1>Welcome to <span style="color:var(--primary)">SpeakUp</span></h1>
-  <p>Your personal English speaking coach. Let's personalize your experience in 30 seconds.</p>
+  <h1 id="setup-title">Welcome to <span style="color:var(--primary)">SpeakUp</span></h1>
+  <p id="setup-subtitle">Your personal English speaking coach. Let's personalize your experience in 30 seconds.</p>
+  <!-- shown only when returning after logout -->
+  <div id="returning-notice" style="display:none; background:rgba(10,191,188,0.12); border:1px solid rgba(10,191,188,0.3); border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:13px; line-height:1.5;">
+    ✅ Your progress is safe — just update your profile below to continue.
+  </div>
   <div class="input-group">
     <label class="input-label">Your name</label>
     <input type="text" id="setup-name" class="input-field" placeholder="e.g. JI" />
@@ -1004,8 +1008,20 @@
       </div>
       <div id="key-status" style="font-size:13px; margin-top:10px; color:var(--success); display:none;">✅ Key saved!</div>
       <hr style="border-color:var(--border); margin:16px 0;">
-      <p style="margin-bottom:8px;">Account</p>
-      <button class="btn btn-outline" onclick="resetApp()" style="color:var(--danger); border-color:var(--danger);">🗑️ Reset all data</button>
+      <p style="margin-bottom:8px; font-weight:600;">Data backup</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+        <button class="btn btn-outline btn-sm" onclick="exportData()" style="flex:1;">⬇️ Export backup</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-file-input').click()" style="flex:1;">⬆️ Import backup</button>
+      </div>
+      <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="handleImport(event)" />
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:0; line-height:1.5;">Export saves all your sessions, progress, and lessons as a JSON file. Import restores from a previous export.</p>
+      <hr style="border-color:var(--border); margin:16px 0;">
+      <p style="margin-bottom:8px; font-weight:600;">Account</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="logoutUser()" style="flex:1;">🚪 Log out</button>
+        <button class="btn btn-outline" onclick="resetApp()" style="flex:1; color:var(--danger); border-color:var(--danger);">🗑️ Delete all data</button>
+      </div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:8px; line-height:1.5;">Log out keeps your sessions & progress saved. Delete permanently removes everything.</p>
     </div>
   </div>
 
@@ -1083,6 +1099,10 @@
       <button class="desktop-nav-footer-btn" onclick="openSettings()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Settings
+      </button>
+      <button class="desktop-nav-footer-btn" onclick="logoutUser()" style="color:var(--text-muted);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
       </button>
     </div>
   </nav>
@@ -1340,8 +1360,9 @@ function finishSetup() {
   const goal = document.getElementById('setup-goal').value;
   userData = { name, level, goal, created: Date.now(), xp: 0 };
   localStorage.setItem('speakup_user', JSON.stringify(userData));
-  localStorage.setItem('speakup_sessions', JSON.stringify([]));
-  localStorage.setItem('speakup_lessons', JSON.stringify([]));
+  // Only initialise if first-time — don't wipe existing progress on re-login
+  if (!localStorage.getItem('speakup_sessions')) localStorage.setItem('speakup_sessions', JSON.stringify([]));
+  if (!localStorage.getItem('speakup_lessons'))  localStorage.setItem('speakup_lessons',  JSON.stringify([]));
   document.getElementById('setup-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   document.getElementById('app').style.flexDirection = 'column';
@@ -2204,8 +2225,86 @@ function saveAPIKey() {
   document.getElementById('key-status').style.display = 'block';
   setTimeout(closeSettings, 1200);
 }
+function logoutUser() {
+  closeSettings();
+  const sessions = JSON.parse(localStorage.getItem('speakup_sessions') || '[]');
+  // Remove only the user profile — sessions, lessons, API key, theme all stay
+  localStorage.removeItem('speakup_user');
+  userData = null;
+
+  // Stop any ongoing recording
+  if (typeof isRecording !== 'undefined' && isRecording) {
+    if (typeof stopRecording === 'function') stopRecording();
+  }
+
+  // Show setup screen with returning-user notice
+  document.getElementById('app').style.display = 'none';
+  const notice = document.getElementById('returning-notice');
+  const title   = document.getElementById('setup-title');
+  const subtitle = document.getElementById('setup-subtitle');
+  if (sessions.length > 0) {
+    title.innerHTML = 'Welcome back to <span style="color:var(--primary)">SpeakUp</span>';
+    subtitle.textContent = `You have ${sessions.length} session${sessions.length !== 1 ? 's' : ''} and your progress is still saved.`;
+    notice.style.display = 'block';
+  } else {
+    title.innerHTML = 'Welcome to <span style="color:var(--primary)">SpeakUp</span>';
+    subtitle.textContent = "Your personal English speaking coach. Let's personalize your experience in 30 seconds.";
+    notice.style.display = 'none';
+  }
+  document.getElementById('setup-screen').style.display = 'block';
+}
+
+function exportData() {
+  const payload = {
+    _meta: { app: 'SpeakUp', version: 1, exported: new Date().toISOString() },
+    speakup_user:      JSON.parse(localStorage.getItem('speakup_user')      || 'null'),
+    speakup_sessions:  JSON.parse(localStorage.getItem('speakup_sessions')  || '[]'),
+    speakup_lessons:   JSON.parse(localStorage.getItem('speakup_lessons')   || '[]'),
+    speakup_custom_rp: JSON.parse(localStorage.getItem('speakup_custom_rp') || '[]'),
+    speakup_theme:     localStorage.getItem('speakup_theme') || 'dark',
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `speakup-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function handleImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  event.target.value = ''; // reset so same file can be re-selected if needed
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data._meta || data._meta.app !== 'SpeakUp') {
+        alert('This doesn\'t look like a SpeakUp backup file.');
+        return;
+      }
+      const exportDate = new Date(data._meta.exported).toLocaleDateString();
+      const sessionCount = (data.speakup_sessions || []).length;
+      if (!confirm(`Restore backup from ${exportDate}?\n${sessionCount} session${sessionCount !== 1 ? 's' : ''} will be loaded. Current data will be overwritten.`)) return;
+
+      if (data.speakup_user)      localStorage.setItem('speakup_user',      JSON.stringify(data.speakup_user));
+      if (data.speakup_sessions)  localStorage.setItem('speakup_sessions',  JSON.stringify(data.speakup_sessions));
+      if (data.speakup_lessons)   localStorage.setItem('speakup_lessons',   JSON.stringify(data.speakup_lessons));
+      if (data.speakup_custom_rp) localStorage.setItem('speakup_custom_rp', JSON.stringify(data.speakup_custom_rp));
+      if (data.speakup_theme)     localStorage.setItem('speakup_theme',     data.speakup_theme);
+
+      alert('Backup restored! Reloading...');
+      location.reload();
+    } catch {
+      alert('Could not read the file. Make sure it\'s a valid SpeakUp backup.');
+    }
+  };
+  reader.readAsText(file);
+}
+
 function resetApp() {
-  if (confirm('This will delete all your progress and settings. Are you sure?')) {
+  if (confirm('This will permanently delete all your progress, sessions, and settings. Are you sure?')) {
     localStorage.clear();
     location.reload();
   }
