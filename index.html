@@ -252,6 +252,13 @@
   .transcript-box .pause-mark { color: var(--warning); font-weight: 700; font-size: 12px; }
   .transcript-placeholder { color: var(--text-muted); font-style: italic; font-size: 13px; }
 
+  /* AUDIO PLAYBACK */
+  #session-audio-player, .ai-bubble audio {
+    accent-color: var(--primary);
+    background: var(--surface);
+  }
+  #session-audio-card { border-left: 3px solid var(--primary); }
+
   /* FEEDBACK VIEW */
   .score-circle-wrap { text-align: center; margin: 10px 0 20px; }
   .score-circle {
@@ -571,41 +578,67 @@
   .fade-in { animation: fadeIn 0.3s ease; }
 
   /* ── LANDING PAGE ── */
+  #setup-screen {
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 30%, rgba(10,191,188,0.07) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 80% 75%, rgba(255,112,67,0.04) 0%, transparent 60%),
+      var(--bg) !important;
+  }
   .landing-wrapper {
-    display: flex;
+    display: grid;
+    grid-template-columns: 190px 1fr 340px;
     min-height: 100vh;
   }
-  /* LEFT: hero / mascot / features */
+
+  /* LEFT: floating pills column */
   .landing-left {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 16px;
+    padding: 48px 20px 48px 36px;
+  }
+
+  /* CENTER: mascot + tagline + how-it-works */
+  .landing-center {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 48px 32px;
-    background:
-      radial-gradient(ellipse 70% 60% at 30% 40%, rgba(10,191,188,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,112,67,0.05) 0%, transparent 60%),
-      var(--bg);
-  }
-  /* RIGHT: form panel */
-  .landing-right {
-    width: 420px;
-    min-height: 100vh;
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    padding: 48px 36px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow-y: auto;
+    padding: 48px 20px;
   }
 
-  /* Mascot */
-  .mascot-wrap { position: relative; width: 220px; height: 240px; margin: 0 auto 16px; }
-  .mascot-svg  { animation: mascot-float 3.5s ease-in-out infinite; }
+  /* RIGHT: login card + pills below */
+  .landing-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 14px;
+    padding: 48px 36px 48px 20px;
+  }
+
+  /* Compact login card */
+  .login-card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px 24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  }
+  .login-card h2  { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .login-card > p { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5; }
+
+  /* Mascot — no position:relative tricks needed, just sits in flow */
+  .mascot-wrap {
+    width: 220px;
+    height: 248px;
+    margin: 0 auto 20px;
+    position: relative; /* only for the SVG centering */
+  }
+  .mascot-svg { animation: mascot-float 3.5s ease-in-out infinite; }
   @keyframes mascot-float {
     0%,100% { transform: translateY(0px); }
     50%      { transform: translateY(-14px); }
@@ -626,42 +659,41 @@
     100% { opacity:0; transform: translateY(10px) scale(1.2); }
   }
 
-  /* Floating feature pills around mascot */
+  /* Feature pills — static flow elements, not absolutely positioned */
   .feat-pill {
-    position: absolute;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 40px;
-    padding: 8px 14px;
+    padding: 9px 16px;
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
     display: flex;
     align-items: center;
-    gap: 7px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    gap: 8px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.22);
     animation: pill-float 4s ease-in-out infinite;
   }
   .feat-pill .pill-icon { font-size: 16px; }
   @keyframes pill-float {
     0%,100% { transform: translateY(0px); }
-    50%      { transform: translateY(-7px); }
+    50%      { transform: translateY(-8px); }
   }
 
   /* How it helps steps */
   .how-steps {
     display: flex;
-    gap: 12px;
-    margin-top: 36px;
+    gap: 10px;
+    margin-top: 24px;
     width: 100%;
-    max-width: 480px;
+    max-width: 400px;
   }
   .how-step {
     flex: 1;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px 12px;
+    border-radius: 14px;
+    padding: 13px 10px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -674,29 +706,41 @@
     pointer-events: none;
   }
   .how-step-num {
-    width: 24px; height: 24px;
+    width: 22px; height: 22px;
     background: var(--primary);
     border-radius: 50%;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
     color: white;
     display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 10px;
+    margin: 0 auto 8px;
   }
-  .how-step-icon { font-size: 24px; margin-bottom: 8px; }
-  .how-step-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
-  .how-step-desc  { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+  .how-step-icon  { font-size: 22px; margin-bottom: 6px; }
+  .how-step-title { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
+  .how-step-desc  { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
 
-  /* Mobile: stack form on top */
+  /* Mobile: single column, login card first */
   @media (max-width: 899px) {
-    .landing-wrapper { flex-direction: column; }
-    .landing-right {
-      width: 100%; min-height: auto;
-      border-left: none; border-bottom: 1px solid var(--border);
+    .landing-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 20px 40px;
+      gap: 20px;
     }
-    .landing-left { padding: 32px 20px; }
-    .how-steps { flex-direction: column; }
-    .feat-pill { font-size: 11px; padding: 6px 11px; }
+    .landing-left  { display: none; }
+    .landing-center { padding: 0; width: 100%; }
+    .landing-right {
+      width: 100%;
+      padding: 0;
+      align-items: stretch;
+      gap: 0;
+      order: -1; /* login card appears above mascot on mobile */
+    }
+    .landing-right .feat-pill { display: none; }
+    .login-card { border-radius: 16px; padding: 22px 18px 18px; }
+    .how-steps  { flex-direction: column; max-width: 100%; }
+    .mascot-wrap { width: 180px; height: 200px; }
   }
 
   /* Profile setup */
@@ -780,45 +824,36 @@
 <body>
 
 <!-- LANDING / SETUP SCREEN -->
-<div id="setup-screen" style="display:none; background:var(--bg);">
+<div id="setup-screen" style="display:none;">
 <div class="landing-wrapper">
 
-  <!-- ══ LEFT: mascot + features ══ -->
+  <!-- ══ COL 1: left feature pills ══ -->
   <div class="landing-left">
+    <div class="feat-pill" style="animation-delay:0s;">
+      <span class="pill-icon">🎙️</span>Free Speaking
+    </div>
+    <div class="feat-pill" style="animation-delay:1.1s;">
+      <span class="pill-icon">🎭</span>Roleplay
+    </div>
+    <div class="feat-pill" style="animation-delay:2.0s;">
+      <span class="pill-icon">🏆</span>Streaks
+    </div>
+  </div>
+
+  <!-- ══ COL 2: mascot + tagline + how it works ══ -->
+  <div class="landing-center">
 
     <!-- Tagline -->
-    <div style="text-align:center; margin-bottom:28px;">
-      <div style="font-size:11px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px;">English Speaking Coach</div>
-      <div style="font-size:28px; font-weight:800; line-height:1.2; margin-bottom:10px;">Speak with confidence.<br><span style="color:var(--primary);">Every single day.</span></div>
-      <div style="font-size:14px; color:var(--text-muted); max-width:360px; margin:0 auto; line-height:1.6;">Listen to yourself, catch bad habits, and improve with every session — guided by AI.</div>
+    <div style="text-align:center; margin-bottom:24px;">
+      <div style="font-size:10px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px;">English Speaking Coach</div>
+      <div style="font-size:26px; font-weight:800; line-height:1.25; margin-bottom:8px;">Speak with confidence.<br><span style="color:var(--primary);">Every single day.</span></div>
+      <div style="font-size:13px; color:var(--text-muted); max-width:320px; margin:0 auto; line-height:1.6;">Listen to yourself, catch bad habits, and improve with every session — guided by AI.</div>
     </div>
 
-    <!-- MASCOT + floating pills -->
-    <div class="mascot-wrap" style="width:260px; height:300px;">
-
-      <!-- Floating feature pills (scattered) -->
-      <div class="feat-pill" style="top:8px; left:-30px; animation-delay:0s;">
-        <span class="pill-icon">🎙️</span>Free Speaking
-      </div>
-      <div class="feat-pill" style="top:20px; right:-20px; animation-delay:0.8s;">
-        <span class="pill-icon">🤖</span>AI Chat
-      </div>
-      <div class="feat-pill" style="top:50%; left:-55px; animation-delay:1.4s;">
-        <span class="pill-icon">🎭</span>Roleplay
-      </div>
-      <div class="feat-pill" style="top:55%; right:-40px; animation-delay:0.5s;">
-        <span class="pill-icon">📊</span>Progress
-      </div>
-      <div class="feat-pill" style="bottom:30px; left:10px; animation-delay:1.9s;">
-        <span class="pill-icon">📚</span>Lessons
-      </div>
-      <div class="feat-pill" style="bottom:20px; right:0px; animation-delay:1.1s;">
-        <span class="pill-icon">💬</span>Topics
-      </div>
-
-      <!-- MASCOT SVG -->
+    <!-- MASCOT (standalone, no pills hovering it) -->
+    <div class="mascot-wrap">
       <svg class="mascot-svg" viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg"
-           style="position:absolute; left:50%; top:10px; transform:translateX(-50%); width:180px;">
+           style="position:absolute; left:50%; top:0; transform:translateX(-50%); width:200px;">
 
         <!-- Glow -->
         <circle cx="100" cy="115" r="90" fill="rgba(10,191,188,0.07)"/>
@@ -856,12 +891,12 @@
         <!-- Smile -->
         <path d="M 82 118 Q 100 134 118 118" stroke="white" fill="none" stroke-width="4.5" stroke-linecap="round"/>
 
-        <!-- Speaking waves emanating downward -->
+        <!-- Speaking waves -->
         <path class="speak-w1" d="M 84 142 Q 100 150 116 142" stroke="white" fill="none" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
         <path class="speak-w2" d="M 77 156 Q 100 167 123 156" stroke="white" fill="none" stroke-width="3" stroke-linecap="round" opacity="0"/>
         <path class="speak-w3" d="M 70 170 Q 100 184 130 170" stroke="white" fill="none" stroke-width="2.5" stroke-linecap="round" opacity="0"/>
 
-        <!-- Arms (little stubs waving) -->
+        <!-- Arms -->
         <ellipse cx="57" cy="170" rx="13" ry="20" fill="#089E9B" transform="rotate(-25 57 170)"/>
         <ellipse cx="143" cy="170" rx="13" ry="20" fill="#089E9B" transform="rotate(25 143 170)"/>
 
@@ -871,90 +906,103 @@
       </svg>
     </div>
 
-    <!-- HOW PRACTISING HELPS -->
-    <div style="text-align:center; margin-bottom:14px; margin-top:4px;">
-      <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">How it works</div>
-    </div>
+    <!-- HOW IT WORKS -->
+    <div style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; text-align:center; margin-bottom:10px;">How it works</div>
     <div class="how-steps">
       <div class="how-step">
         <div class="how-step-num">1</div>
         <div class="how-step-icon">🎙️</div>
         <div class="how-step-title">Speak naturally</div>
-        <div class="how-step-desc">Talk freely or follow a prompt. The app listens and transcribes in real-time.</div>
+        <div class="how-step-desc">Talk freely or follow a prompt. Transcribed in real-time.</div>
       </div>
       <div class="how-step">
         <div class="how-step-num">2</div>
         <div class="how-step-icon">🔍</div>
         <div class="how-step-title">AI spots issues</div>
-        <div class="how-step-desc">Filler words, awkward pauses, pace — caught and highlighted instantly.</div>
+        <div class="how-step-desc">Fillers, awkward pauses, pace — caught and highlighted.</div>
       </div>
       <div class="how-step">
         <div class="how-step-num">3</div>
         <div class="how-step-icon">📈</div>
         <div class="how-step-title">You improve</div>
-        <div class="how-step-desc">Session scores, progress charts, and AI coaching show your growth over time.</div>
+        <div class="how-step-desc">Scores, charts, and AI coaching show your growth.</div>
       </div>
     </div>
 
-    <!-- Trust footer -->
-    <div style="margin-top:24px; font-size:12px; color:var(--text-muted); text-align:center; line-height:1.8;">
-      🔒 No servers · No tracking · No ads · Export your data any time
+    <div style="margin-top:18px; font-size:11px; color:var(--text-muted); text-align:center; line-height:1.8;">
+      🔒 No servers · No tracking · No ads · Export any time
     </div>
 
-  </div><!-- /landing-left -->
+  </div><!-- /landing-center -->
 
-  <!-- ══ RIGHT: login form ══ -->
+  <!-- ══ COL 3: login card + right pills ══ -->
   <div class="landing-right">
 
-    <!-- Logo -->
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:32px;">
-      <svg width="32" height="26" viewBox="0 0 22 18" fill="none">
-        <rect x="0" y="6" width="3" height="6" rx="1.5" fill="#0ABFBC"/>
-        <rect x="5" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
-        <rect x="10" y="0" width="3" height="18" rx="1.5" fill="#0ABFBC"/>
-        <rect x="15" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
-        <rect x="20" y="6" width="2" height="6" rx="1" fill="#0ABFBC"/>
-      </svg>
-      <span style="font-size:22px; font-weight:800; letter-spacing:-0.5px;">Speak<span style="color:var(--primary);">Up</span></span>
-    </div>
+    <!-- Compact login card -->
+    <div class="login-card">
 
-    <h2 id="setup-title" style="font-size:24px; font-weight:800; margin-bottom:6px;">Get started</h2>
-    <p id="setup-subtitle" style="color:var(--text-muted); font-size:14px; margin-bottom:20px; line-height:1.5;">Set up your profile in 30 seconds. No account needed.</p>
+      <!-- Logo -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:18px;">
+        <svg width="26" height="20" viewBox="0 0 22 18" fill="none">
+          <rect x="0" y="6" width="3" height="6" rx="1.5" fill="#0ABFBC"/>
+          <rect x="5" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
+          <rect x="10" y="0" width="3" height="18" rx="1.5" fill="#0ABFBC"/>
+          <rect x="15" y="3" width="3" height="12" rx="1.5" fill="#0ABFBC"/>
+          <rect x="20" y="6" width="2" height="6" rx="1" fill="#0ABFBC"/>
+        </svg>
+        <span style="font-size:18px; font-weight:800; letter-spacing:-0.5px;">Speak<span style="color:var(--primary);">Up</span></span>
+      </div>
 
-    <!-- Returning-user notice -->
-    <div id="returning-notice" style="display:none; background:rgba(10,191,188,0.12); border:1px solid rgba(10,191,188,0.3); border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:13px; line-height:1.5;">
-      ✅ Your progress is saved — just confirm your profile to continue.
-    </div>
+      <h2 id="setup-title">Get started</h2>
+      <p id="setup-subtitle">Set up in 30 seconds. No account needed.</p>
 
-    <div class="input-group">
-      <label class="input-label">Your name</label>
-      <input type="text" id="setup-name" class="input-field" placeholder="e.g. John Doe" />
-    </div>
-    <div class="input-group">
-      <label class="input-label">Current English level</label>
-      <select id="setup-level" class="input-field">
-        <option value="beginner">Beginner – just getting started</option>
-        <option value="intermediate" selected>Intermediate – can hold basic conversations</option>
-        <option value="upper">Upper-Intermediate – fairly fluent, want to polish</option>
-        <option value="advanced">Advanced – professional-level fluency</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label class="input-label">Main goal</label>
-      <select id="setup-goal" class="input-field">
-        <option value="fluency">Sound more fluent & natural</option>
-        <option value="professional">Professional / business English</option>
-        <option value="confidence">Build confidence speaking</option>
-        <option value="all" selected>All of the above</option>
-      </select>
-    </div>
+      <!-- Returning-user notice -->
+      <div id="returning-notice" style="display:none; background:rgba(10,191,188,0.12); border:1px solid rgba(10,191,188,0.3); border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:12px; line-height:1.5;">
+        ✅ Your progress is saved — just confirm your profile to continue.
+      </div>
 
-    <button class="btn btn-primary" onclick="finishSetup()" style="margin-top:8px; font-size:16px; padding:14px;">
-      Let's go! 🚀
-    </button>
+      <div class="input-group">
+        <label class="input-label">Your name</label>
+        <input type="text" id="setup-name" class="input-field" placeholder="e.g. John Doe" />
+      </div>
+      <div class="input-group">
+        <label class="input-label">English level</label>
+        <select id="setup-level" class="input-field">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate" selected>Intermediate</option>
+          <option value="upper">Upper-Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Main goal</label>
+        <select id="setup-goal" class="input-field">
+          <option value="fluency">Sound more fluent & natural</option>
+          <option value="professional">Professional / business English</option>
+          <option value="confidence">Build confidence speaking</option>
+          <option value="all" selected>All of the above</option>
+        </select>
+      </div>
 
-    <div style="margin-top:16px; padding:14px; background:var(--surface2); border-radius:12px; font-size:12px; color:var(--text-muted); line-height:1.7; text-align:center;">
-      Everything stays on <strong>your device</strong>.<br>You can export or delete your data from Settings at any time.
+      <button class="btn btn-primary" onclick="finishSetup()" style="margin-top:6px; width:100%;">
+        Let's go! 🚀
+      </button>
+
+      <div style="margin-top:12px; font-size:11px; color:var(--text-muted); line-height:1.7; text-align:center;">
+        Everything stays on <strong>your device</strong>.
+      </div>
+
+    </div><!-- /login-card -->
+
+    <!-- Right-side feature pills (below the card) -->
+    <div class="feat-pill" style="animation-delay:0.5s;">
+      <span class="pill-icon">🤖</span>AI Chat
+    </div>
+    <div class="feat-pill" style="animation-delay:1.5s;">
+      <span class="pill-icon">📊</span>Progress
+    </div>
+    <div class="feat-pill" style="animation-delay:2.4s;">
+      <span class="pill-icon">💬</span>Topics
     </div>
 
   </div><!-- /landing-right -->
@@ -1197,6 +1245,16 @@
     <div class="card" id="transcript-annotated-card" style="display:none;">
       <div class="card-title">Your Transcript</div>
       <div class="annotated-transcript" id="annotated-transcript"></div>
+    </div>
+
+    <!-- Session recording playback — populated after each session -->
+    <div class="card" id="session-audio-card" style="display:none;">
+      <div class="card-title">🎧 Recording Playback</div>
+      <audio id="session-audio-player" controls style="width:100%; margin:10px 0; border-radius:8px; outline:none;"></audio>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn btn-outline btn-sm" id="session-audio-download">⬇️ Download</button>
+        <span style="font-size:12px; color:var(--text-muted); line-height:1.4;">Listen back to spot pronunciation, blind spots, or transcript mismatches.</span>
+      </div>
     </div>
 
     <div class="card" id="ai-feedback-card">
@@ -1942,6 +2000,13 @@ function startRecording() {
   pauseCount = 0;
   lastWordTime = null;
 
+  // Hide any previous audio card from an earlier session
+  const prevCard = document.getElementById('session-audio-card');
+  if (prevCard) prevCard.style.display = 'none';
+
+  // Start audio capture in parallel — fails silently if mic permission denied
+  beginSessionAudioCapture();
+
   document.getElementById('transcript-box').innerHTML = '<span class="transcript-placeholder">Listening...</span>';
   document.getElementById('stop-area').style.display = 'none';
   document.getElementById('ls-fillers').textContent = '0';
@@ -2048,6 +2113,7 @@ function stopRecording() {
 
 function stopAndAnalyze() {
   stopRecording();
+  endSessionAudioCapture(); // stops MediaRecorder; onstop fires async → shows player
   analyzeSession();
   goToView('feedback');
 }
@@ -2445,6 +2511,107 @@ function removeOverlap(tail, incoming) {
   return incoming;
 }
 
+// ─── AUDIO CAPTURE HELPERS ────────────────────────────────────────────────────
+
+function getAudioMimeType() {
+  const candidates = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/mp4',
+  ];
+  return (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported)
+    ? (candidates.find(t => MediaRecorder.isTypeSupported(t)) || '')
+    : '';
+}
+
+function getAudioExt(mimeType) {
+  if (mimeType.includes('mp4'))  return 'mp4';
+  if (mimeType.includes('ogg'))  return 'ogg';
+  return 'webm';
+}
+
+// ─── SESSION AUDIO (main practice recording) ──────────────────────────────────
+
+const _sessionRecorder = { current: null, stream: null };
+
+async function beginSessionAudioCapture() {
+  // Revoke previous blob to avoid memory leaks
+  if (sessionAudioURL) { URL.revokeObjectURL(sessionAudioURL); sessionAudioURL = null; }
+  sessionAudioChunks.length = 0;
+
+  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const mimeType = getAudioMimeType();
+    const mr = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+    mr.ondataavailable = e => { if (e.data.size > 0) sessionAudioChunks.push(e.data); };
+    mr.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const mt   = mr.mimeType || 'audio/webm';
+      const blob = new Blob(sessionAudioChunks, { type: mt });
+      sessionAudioURL = URL.createObjectURL(blob);
+      showSessionAudioPlayer(sessionAudioURL, getAudioExt(mt));
+    };
+    mr.start(200);
+    _sessionRecorder.current = mr;
+    _sessionRecorder.stream  = stream;
+  } catch (err) {
+    console.warn('SpeakUp: session audio capture unavailable —', err.message);
+  }
+}
+
+function endSessionAudioCapture() {
+  const mr = _sessionRecorder.current;
+  if (!mr || mr.state === 'inactive') return;
+  mr.stop(); // onstop fires async → showSessionAudioPlayer
+  _sessionRecorder.current = null;
+}
+
+function showSessionAudioPlayer(url, ext) {
+  const card   = document.getElementById('session-audio-card');
+  const player = document.getElementById('session-audio-player');
+  const dlBtn  = document.getElementById('session-audio-download');
+  if (!card) return;
+  player.src = url;
+  card.style.display = 'block';
+  dlBtn.onclick = () => {
+    const a = document.createElement('a');
+    a.href     = url;
+    a.download = `speakup-session-${new Date().toISOString().slice(0,10)}.${ext}`;
+    a.click();
+  };
+}
+
+// ─── AI UTTERANCE AUDIO ───────────────────────────────────────────────────────
+
+const _aiRecorder = { current: null, stream: null };
+
+async function beginAIAudioCapture() {
+  if (aiAudioURL) { URL.revokeObjectURL(aiAudioURL); aiAudioURL = null; }
+  aiAudioChunks.length = 0;
+
+  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const mimeType = getAudioMimeType();
+    const mr = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+    mr.ondataavailable = e => { if (e.data.size > 0) aiAudioChunks.push(e.data); };
+    mr.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const mt   = mr.mimeType || 'audio/webm';
+      const blob = new Blob(aiAudioChunks, { type: mt });
+      aiAudioURL = URL.createObjectURL(blob);
+      // will be attached to the bubble by sendAIMessage after this resolves
+    };
+    mr.start(200);
+    _aiRecorder.current = mr;
+    _aiRecorder.stream  = stream;
+  } catch (err) {
+    console.warn('SpeakUp: AI audio capture unavailable —', err.message);
+  }
+}
+
 function calcStreak(sessions) {
   if (!sessions.length) return 0;
   const today = new Date().setHours(0,0,0,0);
@@ -2670,6 +2837,15 @@ let aiIsRecording = false;
 let isSpeaking = false;
 let pendingAIText = '';
 
+// ─── AUDIO CAPTURE (MediaRecorder) ────────────────────────────────────────────
+let sessionMediaRecorder = null;
+let sessionAudioChunks  = [];
+let sessionAudioURL     = null; // current blob URL — revoked on next session start
+
+let aiMediaRecorder   = null;
+let aiAudioChunks     = [];
+let aiAudioURL        = null;
+
 const AI_SCENARIOS = {
   job_interview: {
     label: '💼 Job Interview',
@@ -2749,6 +2925,9 @@ function startAIRecording() {
   if (!SR) { alert('Speech recognition requires Chrome or Edge.'); return; }
   pendingAIText = '';
 
+  // Start audio capture alongside speech recognition
+  beginAIAudioCapture();
+
   aiRecognition = new SR();
   aiRecognition.lang = 'en-US';
   aiRecognition.interimResults = true;
@@ -2772,6 +2951,12 @@ function startAIRecording() {
   aiRecognition.onend = () => {
     aiIsRecording = false;
     document.getElementById('ai-record-btn').style.background = 'var(--primary)';
+    // Stop audio capture — aiAudioURL is set async in onstop
+    if (_aiRecorder.current) {
+      const mr = _aiRecorder.current;
+      mr.stop();
+      _aiRecorder.current = null;
+    }
     if (pendingAIText.trim()) {
       document.getElementById('ai-interim').textContent = pendingAIText;
     }
@@ -2792,7 +2977,37 @@ async function sendAIMessage() {
   }
   if (!aiScenario) { alert('Please select a scenario first.'); return; }
 
-  addAIBubble('user', text);
+  // Wait a moment for MediaRecorder.onstop to fire and set aiAudioURL (it's async)
+  // If it's already set, this resolves immediately.
+  const utteranceURL = await new Promise(resolve => {
+    if (aiAudioURL) { resolve(aiAudioURL); aiAudioURL = null; return; }
+    // Poll up to 400ms for onstop to fire
+    let waited = 0;
+    const poll = setInterval(() => {
+      waited += 50;
+      if (aiAudioURL || waited >= 400) {
+        clearInterval(poll);
+        const u = aiAudioURL;
+        aiAudioURL = null;
+        resolve(u || null);
+      }
+    }, 50);
+  });
+
+  const bubbleEl = addAIBubble('user', text);
+  // If we captured audio, append a mini player to the user bubble
+  if (utteranceURL && bubbleEl) {
+    const ext = getAudioExt(getAudioMimeType());
+    const playerDiv = document.createElement('div');
+    playerDiv.style.cssText = 'margin-top:8px; display:flex; flex-direction:column; gap:4px;';
+    playerDiv.innerHTML = `
+      <audio controls style="width:100%; height:32px; border-radius:6px; outline:none;" src="${utteranceURL}"></audio>
+      <button onclick="(function(u,e){const a=document.createElement('a');a.href=u;a.download='speakup-utterance-${new Date().toISOString().slice(0,10)}.'+e;a.click();})(this.dataset.url,'${ext}')" data-url="${utteranceURL}"
+        style="font-size:11px; background:none; border:none; color:var(--text-muted); cursor:pointer; text-align:left; padding:0;">⬇️ Download clip</button>
+    `;
+    bubbleEl.appendChild(playerDiv);
+  }
+
   aiChatHistory.push({ role: 'user', content: text });
   pendingAIText = '';
   document.getElementById('ai-interim').textContent = 'Tap mic to speak your response...';
@@ -2891,6 +3106,8 @@ function toggleTheme() {
   document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
   localStorage.setItem('speakup_theme', isLight ? 'light' : 'dark');
 }
+
+
 
 function applyTheme() {
   const saved = localStorage.getItem('speakup_theme');
